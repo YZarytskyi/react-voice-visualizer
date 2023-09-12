@@ -446,13 +446,11 @@ const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
           <>
             <div className="voice-visualizer__audio-info-container">
               {isRecordingInProgress && (
-                <p className="voice-visualizer__audio-info-current-time">
+                <p className="voice-visualizer__audio-info-time">
                   {formatRecordingTime(recordingTime)}
                 </p>
               )}
-              {duration ? (
-                <p>Duration: {formatDurationTime(duration)}</p>
-              ) : null}
+              {duration ? <p>{formatDurationTime(duration)}</p> : null}
             </div>
 
             <div className="voice-visualizer__buttons-container">

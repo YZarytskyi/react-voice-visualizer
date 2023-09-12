@@ -239,14 +239,16 @@
 
 .voice-visualizer__audio-info-container {
     box-sizing: border-box;
-    height: 56px;
+    height: 55px;
     display: flex;
-    gap: 30px;
+    align-items: center;
     justify-content: center;
+    gap: 30px;
 }
 
-.voice-visualizer__audio-info-current-time {
-    min-width: 45px;
+.voice-visualizer__audio-info-time {
+    margin: 15px 0;
+    min-width: 38px;
     text-align: left;
 }
 
