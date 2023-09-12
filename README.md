@@ -6,6 +6,8 @@ The `react-voice-visualizer` library offers a comprehensive and highly customiza
 
 ![screenshot](./public/voiceVisualizer.png)
 
+Experience the [Demo App: Click here to explore the react-voice-visualizer](https://react-voice-visualizer.vercel.app/). Try it out and see it in action!
+
 ### Key Features:
 
 - **Audio Recording**: Easily capture audio recordings with minimal setup using React hook and component.
@@ -32,7 +34,7 @@ or
 yarn add react-voice-visualizer
 ```
 
-## Demo App
+## [Demo App](https://react-voice-visualizer.vercel.app/)
 For a live demonstration of the React Voice Visualizer library, you can check out the [Demo Voice Visualizer App](https://react-voice-visualizer.vercel.app/). This app showcases various features and functionalities of the library in action.
 
 Feel free to explore the demo app to see how the **React Voice Visualizer** can be used in different scenarios. You can refer to the source code of the demo app for additional examples and inspiration for using the library effectively.
