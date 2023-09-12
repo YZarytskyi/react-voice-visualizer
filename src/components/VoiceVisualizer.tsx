@@ -135,7 +135,7 @@ const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
     const picksRef = useRef<Array<BarItem | null>>([]);
     const indexSpeedRef = useRef(formattedSpeed);
     const indexRef = useRef(formattedBarWidth);
-    const index2Ref = useRef(barWidth);
+    const index2Ref = useRef(formattedBarWidth);
 
     const unit = formattedBarWidth + formattedGap * formattedBarWidth;
 
