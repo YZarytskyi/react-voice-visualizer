@@ -1,0 +1,76 @@
+{
+  "name": "react-voice-visualizer",
+  "private": false,
+  "version": "1.0.1",
+  "type": "module",
+  "author": "Yurii Zarytskyi",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YZarytskyi/react-voice-visualizer.git"
+  },
+  "description": "React library for audio recording and visualization using Web Audio API",
+  "license": "MIT",
+  "keywords": [
+    "audio",
+    "recording",
+    "visualization",
+    "audio wave",
+    "audio recorder",
+    "audio recording",
+    "audio player",
+    "voice",
+    "recorder",
+    "recording",
+    "sound",
+    "microphone",
+    "media",
+    "voice recorder",
+    "voice recording",
+    "mediaDevices",
+    "getUserMedia",
+    "react",
+    "reactjs",
+    "library"
+  ],
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/react-voice-visualizer.umd.cjs",
+  "module": "./dist/react-voice-visualizer.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/react-voice-visualizer.js",
+      "require": "./dist/react-voice-visualizer.umd.cjs"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.14",
+    "@types/react-dom": "^18.2.6",
+    "@typescript-eslint/eslint-plugin": "^6.6.0",
+    "@typescript-eslint/parser": "^6.6.0",
+    "@vitejs/plugin-react": "^4.0.1",
+    "eslint": "^8.44.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.1",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.0",
+    "vite-plugin-css-injected-by-js": "^3.3.0",
+    "vite-plugin-dts": "^3.5.3"
+  },
+  "bugs": {
+    "url": "https://github.com/YZarytskyi/react-voice-visualizer/issues"
+  },
+  "homepage": "https://github.com/YZarytskyi/react-voice-visualizer#readme"
+}
