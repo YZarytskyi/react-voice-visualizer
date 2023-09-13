@@ -30,7 +30,7 @@ import playIcon from "../assets/play.svg";
 import pauseIcon from "../assets/pause.svg";
 import stopIcon from "../assets/stop.svg";
 
-interface VoiceVisualiserProps {
+interface VoiceVisualizerProps {
   controls: Controls;
   height?: string | number;
   width?: string | number;
@@ -65,7 +65,7 @@ interface VoiceVisualiserProps {
 
 type Ref = HTMLAudioElement | null;
 
-const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
+const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
   (
     {
       controls: {
@@ -542,4 +542,4 @@ const VoiceVisualiser = forwardRef<Ref, VoiceVisualiserProps>(
   },
 );
 
-export default VoiceVisualiser;
+export default VoiceVisualizer;

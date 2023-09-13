@@ -41,12 +41,12 @@ Feel free to explore the demo app to see how the **React Voice Visualizer** can 
 
 ## Usage
 
-To start using the VoiceVisualiser component, you will need to import the necessary hook and component from the library.
+To start using the VoiceVisualizer component, you will need to import the necessary hook and component from the library.
 Here's an example of how to use this library in your `App` component:
 
 ```jsx
 import { useEffect } from "react";
-import { useVoiceVisualizer, VoiceVisualiser } from "react-voice-visualizer";
+import { useVoiceVisualizer, VoiceVisualizer } from "react-voice-visualizer";
 
 const App = () => {
     // Initialize the recorder controls using the hook
@@ -73,7 +73,7 @@ const App = () => {
     }, [error]);
 
     return (
-        <VoiceVisualiser controls={recorderControls} ref={audioRef}/>
+        <VoiceVisualizer controls={recorderControls} ref={audioRef}/>
     );
 };
 
@@ -88,7 +88,7 @@ setPreloadedAudioBlob(audioBlob);
 Example:
 ```jsx
 import { useEffect } from 'react';
-import { useVoiceVisualizer, VoiceVisualiser } from 'react-voice-visualizer';
+import { useVoiceVisualizer, VoiceVisualizer } from 'react-voice-visualizer';
 
 const App = () => {
     const recorderControls = useVoiceVisualizer();
@@ -115,7 +115,7 @@ const App = () => {
     }, [error]);
 
     return (
-        <VoiceVisualiser controls={recorderControls} ref={audioRef}/>
+        <VoiceVisualizer controls={recorderControls} ref={audioRef}/>
     );
 };
 
@@ -127,7 +127,7 @@ export default App;
 1. Import the required components and hooks from the library.
 2. Initialize the recorder controls using the `useVoiceVisualizer` hook.
 3. Use the provided state and functions to manage audio recording and playback.
-4. Render the `VoiceVisualiser` component to display the real-time audio visualization.
+4. Render the `VoiceVisualizer` component to display the real-time audio visualization.
 5. Use the provided buttons to start, pause, stop, and save the audio recording.
 
 Remember to include necessary CSS styles to customize the components and buttons according to your design preferences.
@@ -179,7 +179,7 @@ You can use the setPreloadedAudioBlob function to load any audio data. Pass your
 setPreloadedAudioBlob(audioBlob);
 ```
 
-### `VoiceVisualiser` Component
+### `VoiceVisualizer` Component
 
 A component that visualizes the real-time audio audio wave during recording.
 
