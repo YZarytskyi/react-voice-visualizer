@@ -2,7 +2,7 @@ import { MutableRefObject } from "react";
 
 export interface BarItem {
   startY: number;
-  height: number;
+  barHeight: number;
 }
 
 export interface Controls {
@@ -41,6 +41,7 @@ export interface DrawByLiveStreamParams {
   index2: MutableRefObject<number>;
   canvas: HTMLCanvasElement;
   isRecordingInProgress: boolean;
+  isPausedRecording: boolean;
   picks: Array<BarItem | null>;
   backgroundColor: string;
   barWidth: number;

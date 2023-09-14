@@ -1,14 +1,13 @@
 import {
   useState,
   useEffect,
+  useLayoutEffect,
   forwardRef,
   useRef,
-  useCallback,
   MutableRefObject,
   MouseEventHandler,
 } from "react";
 
-import useResizeObserver from "../hooks/useResizeObserver.tsx";
 import {
   drawByLiveStream,
   drawByBlob,
@@ -124,8 +123,10 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     const [barsData, setBarsData] = useState<BarsData[]>([]);
     const [canvasCurrentWidth, setCanvasCurrentWidth] = useState(0);
     const [canvasCurrentHeight, setCanvasCurrentHeight] = useState(0);
+    const [canvasWidth, setCanvasWidth] = useState(0);
     const [isRecordedCanvasHovered, setIsRecordedCanvasHovered] =
       useState(false);
+    const [screenWidth, setScreenWidth] = useState(0);
 
     const formattedSpeed = Math.trunc(speed);
     const formattedBarWidth = Math.trunc(barWidth);
@@ -136,17 +137,80 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     const indexSpeedRef = useRef(formattedSpeed);
     const indexRef = useRef(formattedBarWidth);
     const index2Ref = useRef(formattedBarWidth);
+    const canvasContainerRef = useRef<HTMLDivElement | null>(null);
 
     const unit = formattedBarWidth + formattedGap * formattedBarWidth;
 
-    const onResize = useCallback((target: HTMLDivElement) => {
-      const roundedWidth = Math.floor(target.clientWidth / 2) * 2;
-      const roundedHeight = Math.trunc(target.clientHeight);
-      setCanvasCurrentWidth(roundedWidth);
-      setCanvasCurrentHeight(roundedHeight);
-    }, []);
+    useEffect(() => {
+      const onResize = () => {
+        if (!canvasContainerRef.current || !canvasRef.current) return;
 
-    const canvasContainerRef = useResizeObserver(onResize);
+        indexSpeedRef.current = formattedSpeed;
+
+        const roundedHeight =
+          Math.trunc(
+            (canvasContainerRef.current.clientHeight *
+              window.devicePixelRatio) /
+              2,
+          ) * 2;
+
+        setCanvasCurrentWidth(canvasContainerRef.current.clientWidth);
+        setCanvasCurrentHeight(roundedHeight);
+        setCanvasWidth(
+          Math.round(
+            canvasContainerRef.current.clientWidth * window.devicePixelRatio,
+          ),
+        );
+
+        setScreenWidth(window.innerWidth * window.devicePixelRatio);
+      };
+
+      onResize();
+
+      window.addEventListener("resize", onResize);
+
+      return () => {
+        window.removeEventListener("resize", onResize);
+      };
+    }, [width]);
+
+    useLayoutEffect(() => {
+      if (!canvasRef.current) return;
+
+      if (indexSpeedRef.current >= formattedSpeed || !audioData.length) {
+        indexSpeedRef.current = 0;
+        drawByLiveStream({
+          audioData,
+          unit,
+          index: indexRef,
+          index2: index2Ref,
+          canvas: canvasRef.current,
+          picks: picksRef.current,
+          isRecordingInProgress,
+          isPausedRecording: isPausedRecording,
+          backgroundColor,
+          mainBarColor,
+          secondaryBarColor,
+          barWidth: formattedBarWidth,
+          rounded,
+          animateCurrentPick,
+          fullscreen,
+        });
+      }
+
+      indexSpeedRef.current += 1;
+    }, [
+      canvasRef.current,
+      audioData,
+      formattedBarWidth,
+      backgroundColor,
+      mainBarColor,
+      secondaryBarColor,
+      rounded,
+      fullscreen,
+      isDefaultUIShown,
+      canvasWidth,
+    ]);
 
     useEffect(() => {
       if (!isCleared) {
@@ -183,45 +247,6 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     }, [isRecordedCanvasHovered, bufferFromRecordedBlob]);
 
     useEffect(() => {
-      if (!canvasRef.current) return;
-
-      if (indexSpeedRef.current >= formattedSpeed || !audioData.length) {
-        indexSpeedRef.current = 0;
-
-        drawByLiveStream({
-          audioData,
-          unit,
-          index: indexRef,
-          index2: index2Ref,
-          canvas: canvasRef.current,
-          picks: picksRef.current,
-          isRecordingInProgress,
-          backgroundColor,
-          mainBarColor,
-          secondaryBarColor,
-          barWidth: formattedBarWidth,
-          rounded,
-          animateCurrentPick,
-          fullscreen,
-        });
-      }
-
-      indexSpeedRef.current += 1;
-    }, [
-      canvasRef.current,
-      audioData,
-      formattedBarWidth,
-      backgroundColor,
-      mainBarColor,
-      secondaryBarColor,
-      rounded,
-      canvasCurrentWidth,
-      canvasCurrentHeight,
-      fullscreen,
-      isDefaultUIShown,
-    ]);
-
-    useEffect(() => {
       if (
         !bufferFromRecordedBlob ||
         !canvasRef.current ||
@@ -242,7 +267,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
           getBarsData(
             bufferFromRecordedBlob,
             canvasCurrentHeight,
-            canvasCurrentWidth,
+            canvasWidth,
             formattedBarWidth,
             formattedGap,
           ),
@@ -338,6 +363,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
           (e.clientX - canvasRef.current.getBoundingClientRect().left);
       }
     };
+
     return (
       <div className="voice-visualizer">
         <div
@@ -345,16 +371,17 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
             canvasContainerClassName ?? ""
           }`}
           ref={canvasContainerRef}
-          style={{
-            height: formatToInlineStyleValue(height),
-            width: formatToInlineStyleValue(width),
-          }}
+          style={{ width: formatToInlineStyleValue(width) }}
         >
           <canvas
             ref={canvasRef}
-            width={canvasCurrentWidth}
+            width={canvasWidth}
             height={canvasCurrentHeight}
             onClick={handleRecordedAudioCurrentTime}
+            style={{
+              height: formatToInlineStyleValue(height),
+              width: canvasCurrentWidth,
+            }}
           >
             Your browser does not support HTML5 Canvas.
           </canvas>
@@ -394,7 +421,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
                 style={{
                   left: hoveredOffsetX,
                   display:
-                    bufferFromRecordedBlob && canvasCurrentWidth > 768
+                    bufferFromRecordedBlob && screenWidth > 768
                       ? "block"
                       : "none",
                 }}

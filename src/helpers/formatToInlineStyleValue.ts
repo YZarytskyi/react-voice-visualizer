@@ -4,7 +4,7 @@ export function formatToInlineStyleValue(
   if (typeof value === "string") {
     const numericValue = Number(value);
     if (!Number.isNaN(numericValue)) {
-      return `${numericValue}px`;
+      return `${Math.trunc(numericValue / 2) * 2}px`;
     }
   }
 

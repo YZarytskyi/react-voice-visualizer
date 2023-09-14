@@ -11,6 +11,7 @@ export const drawByLiveStream = ({
   index2,
   canvas,
   isRecordingInProgress,
+  isPausedRecording,
   picks,
   backgroundColor,
   barWidth,
@@ -23,38 +24,41 @@ export const drawByLiveStream = ({
   const canvasData = initialCanvasSetup({ canvas, backgroundColor });
   if (!canvasData) return;
 
-  const { context, height, width } = canvasData;
-
+  const { context, height, width, halfWidth } = canvasData;
   if (audioData?.length && isRecordingInProgress) {
     const maxPick = Math.max(...audioData);
 
-    if (index2.current >= barWidth) {
-      index2.current = 0;
-      const newStartY = height - (maxPick / 258) * height;
-      const newHeight = -height + (maxPick / 258) * height * 2;
+    if (!isPausedRecording) {
+      if (index2.current >= barWidth) {
+        index2.current = 0;
 
-      const newPick: BarItem | null =
-        index.current === barWidth
-          ? {
-              startY: newStartY > height / 2 - 1 ? height / 2 - 1 : newStartY,
-              height: newHeight < 2 ? 2 : newHeight,
-            }
-          : null;
+        const startY = ((height - (maxPick / 258) * height) / height) * 100;
+        const barHeight =
+          ((-height + (maxPick / 258) * height * 2) / height) * 100;
 
-      if (index.current >= unit) {
-        index.current = barWidth;
-      } else {
-        index.current += barWidth;
+        const newPick: BarItem | null =
+          index.current === barWidth
+            ? {
+                startY,
+                barHeight,
+              }
+            : null;
+
+        if (index.current >= unit) {
+          index.current = barWidth;
+        } else {
+          index.current += barWidth;
+        }
+
+        // quantity of picks enough for visualisation
+        if (picks.length > (fullscreen ? width : halfWidth) / barWidth) {
+          picks.pop();
+        }
+        picks.unshift(newPick);
       }
 
-      // quantity of picks enough for visualisation
-      if (picks.length > (fullscreen ? width : width / 2) / barWidth) {
-        picks.pop();
-      }
-      picks.unshift(newPick);
+      index2.current += 1;
     }
-
-    index2.current += 1;
 
     !fullscreen && paintInitialLine();
 
@@ -64,7 +68,7 @@ export const drawByLiveStream = ({
         context,
         rounded,
         color: mainBarColor,
-        x: fullscreen ? width : width / 2,
+        x: fullscreen ? width : halfWidth,
         y: height - (maxPick / 258) * height,
         h: -height + (maxPick / 258) * height * 2,
         w: barWidth,
@@ -72,7 +76,7 @@ export const drawByLiveStream = ({
     }
 
     // picks visualisation
-    let x = (fullscreen ? width : width / 2) - index2.current;
+    let x = (fullscreen ? width : halfWidth) - index2.current;
     picks.forEach((pick) => {
       if (pick) {
         paintLine({
@@ -80,8 +84,14 @@ export const drawByLiveStream = ({
           color: mainBarColor,
           rounded,
           x,
-          y: pick.startY,
-          h: pick.height,
+          y:
+            (pick.startY * height) / 100 > height / 2 - 1
+              ? height / 2 - 1
+              : (pick.startY * height) / 100,
+          h:
+            (pick.barHeight * height) / 100 > 2
+              ? (pick.barHeight * height) / 100
+              : 2,
           w: barWidth,
         });
       }

@@ -1,6 +1,6 @@
 # react-voice-visualizer  ([Demo App](https://react-voice-visualizer.vercel.app/))
 
-## Library Overview
+## Overview
 
 The `react-voice-visualizer` library offers a comprehensive and highly customizable solution for capturing, visualizing, and manipulating audio recordings within your web applications. Built with React hook and component, this library simplifies the process of integrating audio recording and visualization functionalities using the [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API).
 
