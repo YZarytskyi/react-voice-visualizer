@@ -129,7 +129,9 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     const [screenWidth, setScreenWidth] = useState(0);
 
     const formattedSpeed = Math.trunc(speed);
-    const formattedBarWidth = Math.trunc(barWidth);
+    const formattedBarWidth = Math.trunc(
+      screenWidth > 768 ? barWidth : barWidth + 1,
+    );
     const formattedGap = Math.trunc(gap);
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -162,7 +164,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
           ),
         );
 
-        setScreenWidth(window.innerWidth * window.devicePixelRatio);
+        setScreenWidth(window.innerWidth);
       };
 
       onResize();
