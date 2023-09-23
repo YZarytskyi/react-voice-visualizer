@@ -47,7 +47,7 @@ function useVoiceVisualizer(): Controls {
   }, [prevTime, isPausedRecording, isRecordingInProgress]);
 
   useEffect(() => {
-    if (!recordedBlob) return;
+    if (!recordedBlob  || recordedBlob.size === 0) return;
 
     const processBlob = async () => {
       try {
