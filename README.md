@@ -1,4 +1,4 @@
-# react-voice-visualizer  ([Demo App](https://react-voice-visualizer.vercel.app/))
+# react-voice-visualizer [Demo App](https://react-voice-visualizer.vercel.app/)
 
 ## Overview
 
@@ -238,4 +238,8 @@ Your contribution is greatly appreciated! ❤️🚀
 
 ## Credits
 
-This library was created by [Yurii Zarytskyi](https://github.com/YZarytskyi).
+This library was created by [Yurii Zarytskyi](https://github.com/YZarytskyi) 
+
+  <a href="https://www.linkedin.com/in/yurii-zarytskyi/" rel="nofollow noreferrer">
+    <img src="https://i.stack.imgur.com/gVE0j.png" alt="linkedIn"> LinkedIn
+  </a>

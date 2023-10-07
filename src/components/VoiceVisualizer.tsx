@@ -129,10 +129,10 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     const [screenWidth, setScreenWidth] = useState(0);
 
     const formattedSpeed = Math.trunc(speed);
-    const formattedBarWidth = Math.trunc(
-      screenWidth > 768 ? barWidth : barWidth + 1,
-    );
     const formattedGap = Math.trunc(gap);
+    const formattedBarWidth = Math.trunc(
+      screenWidth < 768 && formattedGap > 0 ? barWidth + 1 : barWidth,
+    );
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const picksRef = useRef<Array<BarItem | null>>([]);
