@@ -17,7 +17,13 @@ const injectCodeFunction = (cssCode) => {
 };
 
 export default defineConfig({
-  plugins: [react(), dts(), cssInjectedByJsPlugin({ injectCodeFunction })],
+  plugins: [
+    react(),
+    cssInjectedByJsPlugin({ injectCodeFunction }),
+    dts({
+      insertTypesEntry: true,
+    }),
+  ],
   build: {
     lib: {
       entry: resolve(__dirname, "src/index.tsx"),
