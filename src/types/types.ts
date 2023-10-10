@@ -22,14 +22,17 @@ export interface Controls {
   setPreloadedAudioBlob: (blob: unknown) => void;
   recordedBlob: Blob | null;
   bufferFromRecordedBlob: AudioBuffer | null;
+  formattedDuration: string;
+  formattedRecordingTime: string;
+  formattedRecordedAudioCurrentTime: string;
   startRecording: () => void;
   togglePauseResume: () => void;
   stopRecording: () => void;
   saveAudioFile: () => void;
   clearCanvas: () => void;
+  setCurrentAudioTime: Dispatch<SetStateAction<number>>;
   error: Error | null;
   _setIsProcessingRecordedAudio: Dispatch<SetStateAction<boolean>>;
-  _handleTimeUpdate: () => void;
   audioRef: MutableRefObject<HTMLAudioElement | null>;
 }
 
@@ -93,9 +96,12 @@ export interface PaintLineParams {
 }
 
 export type GetBarsDataParams = {
-  buffer: AudioBuffer;
+  bufferData: Float32Array;
   height: number;
   width: number;
   barWidth: number;
   gap: number;
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnyFunction = (...args: any[]) => any;

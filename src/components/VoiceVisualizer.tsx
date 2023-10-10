@@ -15,10 +15,14 @@ import {
   initialCanvasSetup,
   formatToInlineStyleValue,
   formatRecordedAudioTime,
-  formatRecordingTime,
-  formatDurationTime,
 } from "../helpers";
-import { BarsData, Controls, BarItem } from "../types/types.ts";
+import { useWebWorker } from "../hooks/useWebWorker.tsx";
+import {
+  BarsData,
+  Controls,
+  BarItem,
+  GetBarsDataParams,
+} from "../types/types.ts";
 
 import "../index.css";
 
@@ -80,15 +84,17 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
         startRecording,
         stopRecording,
         saveAudioFile,
-        recordingTime,
         isAvailableRecordedAudio,
         isPausedRecordedAudio,
         isPausedRecording,
         isProcessingRecordedAudio,
         isCleared,
+        formattedDuration,
+        formattedRecordingTime,
+        formattedRecordedAudioCurrentTime,
         clearCanvas,
+        setCurrentAudioTime,
         _setIsProcessingRecordedAudio,
-        _handleTimeUpdate,
       },
       width = "100%",
       height = 200,
@@ -124,7 +130,6 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     ref,
   ) => {
     const [hoveredOffsetX, setHoveredOffsetX] = useState(0);
-    const [barsData, setBarsData] = useState<BarsData[]>([]);
     const [canvasCurrentWidth, setCanvasCurrentWidth] = useState(0);
     const [canvasCurrentHeight, setCanvasCurrentHeight] = useState(0);
     const [canvasWidth, setCanvasWidth] = useState(0);
@@ -145,6 +150,12 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     const indexRef = useRef(formattedBarWidth);
     const index2Ref = useRef(formattedBarWidth);
     const canvasContainerRef = useRef<HTMLDivElement | null>(null);
+
+    const {
+      result: barsData,
+      setResult: setBarsData,
+      run,
+    } = useWebWorker<BarsData[], GetBarsDataParams>(getBarsData, []);
 
     const unit = formattedBarWidth + formattedGap * formattedBarWidth;
 
@@ -259,15 +270,15 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
 
       picksRef.current = [];
 
-      const newBarsData = getBarsData({
-        buffer: bufferFromRecordedBlob,
+      const bufferData = bufferFromRecordedBlob.getChannelData(0);
+
+      run({
+        bufferData,
         height: canvasCurrentHeight,
         width: canvasWidth,
         barWidth: formattedBarWidth,
         gap: formattedGap,
       });
-
-      setBarsData(newBarsData);
 
       canvasRef.current?.addEventListener(
         "mousemove",
@@ -344,13 +355,13 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     const handleRecordedAudioCurrentTime: MouseEventHandler<
       HTMLCanvasElement
     > = (e) => {
-      if (
-        (ref as MutableRefObject<HTMLAudioElement>)?.current &&
-        canvasRef.current
-      ) {
-        (ref as MutableRefObject<HTMLAudioElement>).current.currentTime =
+      const audioRef = ref as MutableRefObject<HTMLAudioElement>;
+      if (audioRef.current && canvasRef.current) {
+        audioRef.current.currentTime =
           (duration / canvasCurrentWidth) *
           (e.clientX - canvasRef.current.getBoundingClientRect().left);
+
+        setCurrentAudioTime(audioRef.current.currentTime);
       }
     };
 
@@ -449,7 +460,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
                       : ""
                   } ${progressIndicatorTimeClassName ?? ""}`}
                 >
-                  {formatRecordedAudioTime(currentAudioTime)}
+                  {formattedRecordedAudioCurrentTime}
                 </p>
               )}
             </div>
@@ -461,11 +472,11 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
             <div className="voice-visualizer__audio-info-container">
               {isRecordingInProgress && (
                 <p className="voice-visualizer__audio-info-time">
-                  {formatRecordingTime(recordingTime)}
+                  {formattedRecordingTime}
                 </p>
               )}
               {duration && !isProcessingRecordedAudio ? (
-                <p>{formatDurationTime(duration)}</p>
+                <p>{formattedDuration}</p>
               ) : null}
             </div>
 
@@ -549,7 +560,6 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
           <audio
             ref={ref}
             src={audioSrc}
-            onTimeUpdate={_handleTimeUpdate}
             controls={true}
             style={{ display: "none" }}
           />

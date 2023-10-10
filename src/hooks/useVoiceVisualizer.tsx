@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 
-import { getFileExtensionFromMimeType } from "../helpers";
+import {
+  formatDurationTime,
+  formatRecordedAudioTime,
+  formatRecordingTime,
+  getFileExtensionFromMimeType,
+} from "../helpers";
 import { Controls } from "../types/types.ts";
 
 function useVoiceVisualizer(): Controls {
@@ -35,6 +40,10 @@ function useVoiceVisualizer(): Controls {
   const isAvailableRecordedAudio = Boolean(
     bufferFromRecordedBlob && !isProcessingRecordedAudio,
   );
+  const formattedDuration = formatDurationTime(duration);
+  const formattedRecordingTime = formatRecordingTime(recordingTime);
+  const formattedRecordedAudioCurrentTime =
+    formatRecordedAudioTime(currentAudioTime);
 
   useEffect(() => {
     if (!isRecordingInProgress || isPausedRecording) return;
@@ -188,8 +197,11 @@ function useVoiceVisualizer(): Controls {
   };
 
   const _handleTimeUpdate = () => {
-    if (!audioRef.current) return;
+    if (rafCurrentTimeUpdateRef.current) {
+      cancelAnimationFrame(rafCurrentTimeUpdateRef.current);
+    }
 
+    if (!audioRef.current) return;
     setCurrentAudioTime(audioRef.current.currentTime);
     rafCurrentTimeUpdateRef.current = requestAnimationFrame(_handleTimeUpdate);
   };
@@ -228,6 +240,9 @@ function useVoiceVisualizer(): Controls {
     }
     if (audioRef?.current) {
       audioRef.current.removeEventListener("ended", onEndedRecordedAudio);
+    }
+    if (rafCurrentTimeUpdateRef.current) {
+      cancelAnimationFrame(rafCurrentTimeUpdateRef.current);
     }
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.removeEventListener(
@@ -295,10 +310,15 @@ function useVoiceVisualizer(): Controls {
     }
 
     if (audioRef.current && isAvailableRecordedAudio) {
+      if (rafCurrentTimeUpdateRef.current) {
+        cancelAnimationFrame(rafCurrentTimeUpdateRef.current);
+      }
+
       if (audioRef.current?.paused) {
         audioRef.current?.addEventListener("ended", onEndedRecordedAudio);
         void audioRef.current?.play();
         setIsPausedRecordedAudio(false);
+        _handleTimeUpdate();
       } else {
         audioRef.current?.removeEventListener("ended", onEndedRecordedAudio);
         audioRef.current?.pause();
@@ -344,15 +364,18 @@ function useVoiceVisualizer(): Controls {
     isCleared,
     isAvailableRecordedAudio,
     isPreloadedBlob,
+    formattedDuration,
+    formattedRecordingTime,
+    formattedRecordedAudioCurrentTime,
     setPreloadedAudioBlob,
     startRecording,
     togglePauseResume,
     stopRecording,
     saveAudioFile,
     clearCanvas,
+    setCurrentAudioTime,
     error,
     _setIsProcessingRecordedAudio,
-    _handleTimeUpdate,
     audioRef,
   };
 }

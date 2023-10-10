@@ -1,13 +1,12 @@
 import { BarsData, GetBarsDataParams } from "../types/types.ts";
 
 export const getBarsData = ({
-  buffer,
+  bufferData,
   height,
   width,
   barWidth,
   gap,
 }: GetBarsDataParams): BarsData[] => {
-  const bufferData = buffer.getChannelData(0);
   const units = width / (barWidth + gap * barWidth);
   const step = Math.floor(bufferData.length / units);
   const halfHeight = height / 2;
@@ -19,7 +18,7 @@ export const getBarsData = ({
     const maximums: number[] = [];
     let maxCount = 0;
 
-    for (let j = 0; j < step && i * step + j < buffer.length; j++) {
+    for (let j = 0; j < step && i * step + j < bufferData.length; j++) {
       const result = bufferData[i * step + j];
       if (result > 0) {
         maximums.push(result);
