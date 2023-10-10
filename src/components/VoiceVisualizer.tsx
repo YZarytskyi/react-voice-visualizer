@@ -150,7 +150,12 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
 
     useEffect(() => {
       const onResize = () => {
-        if (!canvasContainerRef.current || !canvasRef.current) return;
+        if (
+          !canvasContainerRef.current ||
+          !canvasRef.current ||
+          !isAvailableRecordedAudio
+        )
+          return;
 
         indexSpeedRef.current = formattedSpeed;
 
@@ -179,7 +184,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
       return () => {
         window.removeEventListener("resize", onResize);
       };
-    }, [width]);
+    }, [width, isAvailableRecordedAudio]);
 
     useLayoutEffect(() => {
       if (!canvasRef.current) return;
