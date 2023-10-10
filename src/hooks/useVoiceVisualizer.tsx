@@ -18,7 +18,7 @@ function useVoiceVisualizer({
   onStartAudioPlayback,
   onPausedAudioPlayback,
   onResumedAudioPlayback,
-}: useVoiceVisualizerParams): Controls {
+}: useVoiceVisualizerParams = {}): Controls {
   const [isRecordingInProgress, setIsRecordingInProgress] = useState(false);
   const [isPausedRecording, setIsPausedRecording] = useState(false);
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
