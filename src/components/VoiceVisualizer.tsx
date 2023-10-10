@@ -17,6 +17,7 @@ import {
   formatRecordedAudioTime,
 } from "../helpers";
 import { useWebWorker } from "../hooks/useWebWorker.tsx";
+import { useDebounce } from "../hooks/useDebounce.tsx";
 import {
   BarsData,
   Controls,
@@ -157,39 +158,24 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
       run,
     } = useWebWorker<BarsData[], GetBarsDataParams>(getBarsData, []);
 
+    const debouncedOnResize = useDebounce(onResize);
+
     const unit = formattedBarWidth + formattedGap * formattedBarWidth;
 
     useEffect(() => {
-      const onResize = () => {
-        if (!canvasContainerRef.current || !canvasRef.current) return;
+      debouncedOnResize();
 
-        indexSpeedRef.current = formattedSpeed;
-
-        const roundedHeight =
-          Math.trunc(
-            (canvasContainerRef.current.clientHeight *
-              window.devicePixelRatio) /
-              2,
-          ) * 2;
-
-        setCanvasCurrentWidth(canvasContainerRef.current.clientWidth);
-        setCanvasCurrentHeight(roundedHeight);
-        setCanvasWidth(
-          Math.round(
-            canvasContainerRef.current.clientWidth * window.devicePixelRatio,
-          ),
-        );
-
-        setScreenWidth(window.innerWidth);
+      const handleResize = () => {
+        _setIsProcessingRecordedAudio(true);
+        debouncedOnResize();
       };
 
-      onResize();
-
-      window.addEventListener("resize", onResize);
+      window.addEventListener("resize", handleResize);
 
       return () => {
-        window.removeEventListener("resize", onResize);
+        window.removeEventListener("resize", handleResize);
       };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [width, isAvailableRecordedAudio]);
 
     useLayoutEffect(() => {
@@ -217,6 +203,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
       }
 
       indexSpeedRef.current += 1;
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
       canvasRef.current,
       audioData,
@@ -246,6 +233,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
             hideTimeIndicator,
           );
         } else {
+          // eslint-disable-next-line react-hooks/exhaustive-deps
           canvasRef.current?.removeEventListener(
             "mouseenter",
             showTimeIndicator,
@@ -286,11 +274,13 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
       );
 
       return () => {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         canvasRef.current?.removeEventListener(
           "mousemove",
           setCurrentHoveredOffsetX,
         );
       };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
       bufferFromRecordedBlob,
       canvasCurrentWidth,
@@ -321,6 +311,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
       });
 
       _setIsProcessingRecordedAudio(false);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
       barsData,
       currentAudioTime,
@@ -338,7 +329,30 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
           backgroundColor,
         });
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isProcessingRecordedAudio]);
+
+    function onResize() {
+      if (!canvasContainerRef.current || !canvasRef.current) return;
+
+      indexSpeedRef.current = formattedSpeed;
+
+      const roundedHeight =
+        Math.trunc(
+          (canvasContainerRef.current.clientHeight * window.devicePixelRatio) /
+            2,
+        ) * 2;
+
+      setCanvasCurrentWidth(canvasContainerRef.current.clientWidth);
+      setCanvasCurrentHeight(roundedHeight);
+      setCanvasWidth(
+        Math.round(
+          canvasContainerRef.current.clientWidth * window.devicePixelRatio,
+        ),
+      );
+
+      setScreenWidth(window.innerWidth);
+    }
 
     const showTimeIndicator = () => {
       setIsRecordedCanvasHovered(true);

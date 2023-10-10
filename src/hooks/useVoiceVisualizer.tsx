@@ -6,9 +6,19 @@ import {
   formatRecordingTime,
   getFileExtensionFromMimeType,
 } from "../helpers";
-import { Controls } from "../types/types.ts";
+import { Controls, useVoiceVisualizerParams } from "../types/types.ts";
 
-function useVoiceVisualizer(): Controls {
+function useVoiceVisualizer({
+  onStartRecording,
+  onStopRecording,
+  onPausedRecording,
+  onResumedRecording,
+  onClearCanvas,
+  onEndAudioPlayback,
+  onStartAudioPlayback,
+  onPausedAudioPlayback,
+  onResumedAudioPlayback,
+}: useVoiceVisualizerParams): Controls {
   const [isRecordingInProgress, setIsRecordingInProgress] = useState(false);
   const [isPausedRecording, setIsPausedRecording] = useState(false);
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
@@ -106,6 +116,7 @@ function useVoiceVisualizer(): Controls {
       clearCanvas();
       return;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error]);
 
   useEffect(() => {
@@ -124,6 +135,7 @@ function useVoiceVisualizer(): Controls {
         cancelAnimationFrame(rafRecordingRef.current);
       }
       if (audioRef?.current) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         audioRef.current.removeEventListener("ended", onEndedRecordedAudio);
       }
       if (mediaRecorderRef.current) {
@@ -133,6 +145,7 @@ function useVoiceVisualizer(): Controls {
         );
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -208,12 +221,14 @@ function useVoiceVisualizer(): Controls {
 
   const startRecording = () => {
     if (isRecordingInProgress) return;
+    if (onStartRecording) onStartRecording();
     getUserMedia();
   };
 
   const stopRecording = () => {
     if (!isRecordingInProgress) return;
 
+    if (onStopRecording) onStopRecording();
     _setIsProcessingRecordedAudio(true);
     setIsRecordingInProgress(false);
     setRecordingTime(0);
@@ -262,6 +277,7 @@ function useVoiceVisualizer(): Controls {
     rafRecordingRef.current = null;
     rafCurrentTimeUpdateRef.current = null;
 
+    if (onClearCanvas) onClearCanvas();
     setAudioStream(null);
     setIsRecordingInProgress(false);
     _setIsProcessingRecordedAudio(false);
@@ -296,12 +312,14 @@ function useVoiceVisualizer(): Controls {
     if (isRecordingInProgress) {
       setIsPausedRecording((prevPaused) => !prevPaused);
       if (mediaRecorderRef.current?.state === "recording") {
+        if (onPausedRecording) onPausedRecording();
         mediaRecorderRef.current?.pause();
         setRecordingTime((prev) => prev + (performance.now() - prevTime));
         if (rafRecordingRef.current) {
           cancelAnimationFrame(rafRecordingRef.current);
         }
       } else {
+        if (onResumedRecording) onResumedRecording();
         mediaRecorderRef.current?.resume();
         setPrevTime(performance.now());
         rafRecordingRef.current = requestAnimationFrame(recordingFrame);
@@ -315,11 +333,18 @@ function useVoiceVisualizer(): Controls {
       }
 
       if (audioRef.current?.paused) {
+        if (onStartAudioPlayback && currentAudioTime === 0) {
+          onStartAudioPlayback();
+        }
+        if (onResumedAudioPlayback && currentAudioTime !== 0) {
+          onResumedAudioPlayback();
+        }
         audioRef.current?.addEventListener("ended", onEndedRecordedAudio);
         void audioRef.current?.play();
         setIsPausedRecordedAudio(false);
         _handleTimeUpdate();
       } else {
+        if (onPausedAudioPlayback) onPausedAudioPlayback();
         audioRef.current?.removeEventListener("ended", onEndedRecordedAudio);
         audioRef.current?.pause();
         setIsPausedRecordedAudio(true);
@@ -329,6 +354,7 @@ function useVoiceVisualizer(): Controls {
 
   const onEndedRecordedAudio = () => {
     setIsPausedRecordedAudio(true);
+    if (onEndAudioPlayback) onEndAudioPlayback();
     if (!audioRef?.current) return;
     audioRef.current.currentTime = 0;
     setCurrentAudioTime(0);

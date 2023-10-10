@@ -103,5 +103,17 @@ export type GetBarsDataParams = {
   gap: number;
 };
 
+export interface useVoiceVisualizerParams {
+  onStartRecording?: () => void;
+  onStopRecording?: () => void;
+  onPausedRecording?: () => void;
+  onResumedRecording?: () => void;
+  onClearCanvas?: () => void;
+  onEndAudioPlayback?: () => void;
+  onStartAudioPlayback?: () => void;
+  onPausedAudioPlayback?: () => void;
+  onResumedAudioPlayback?: () => void;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyFunction = (...args: any[]) => any;
