@@ -138,6 +138,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
       useState(false);
     const [screenWidth, setScreenWidth] = useState(0);
     const [isResizing, setIsResizing] = useState(false);
+    const [isProcessingAudio, setIsProcessingAudio] = useState(false);
 
     const isMobile = screenWidth < 768;
     const formattedSpeed = Math.trunc(speed);
@@ -167,8 +168,11 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
       debouncedOnResize();
 
       const handleResize = () => {
-        if (isAvailableRecordedAudio) setIsResizing(true);
-        debouncedOnResize();
+        if (isAvailableRecordedAudio) {
+          setIsProcessingAudio(true);
+          setIsResizing(true);
+          debouncedOnResize();
+        }
       };
 
       window.addEventListener("resize", handleResize);
@@ -291,7 +295,13 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     ]);
 
     useEffect(() => {
-      if (onlyRecording || !barsData?.length || !canvasRef.current) return;
+      if (
+        onlyRecording ||
+        !barsData?.length ||
+        !canvasRef.current ||
+        isResizing
+      )
+        return;
 
       if (isCleared) {
         setBarsData([]);
@@ -311,7 +321,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
         duration,
       });
 
-      setIsResizing(false);
+      setIsProcessingAudio(false);
       _setIsProcessingRecordedAudio(false);
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
@@ -322,6 +332,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
       backgroundColor,
       mainBarColor,
       secondaryBarColor,
+      isResizing,
     ]);
 
     useEffect(() => {
@@ -354,6 +365,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
       );
 
       setScreenWidth(window.innerWidth);
+      setIsResizing(false);
     }
 
     const showTimeIndicator = () => {
@@ -419,7 +431,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
             </>
           )}
           {isAudioProcessingTextShown &&
-            (isProcessingRecordedAudio || isResizing) && (
+            (isProcessingRecordedAudio || isProcessingAudio) && (
               <p
                 className={`voice-visualizer__canvas-audio-processing ${
                   audioProcessingTextClassName ?? ""
@@ -431,7 +443,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
             )}
           {isRecordedCanvasHovered &&
             isAvailableRecordedAudio &&
-            !isResizing &&
+            !isProcessingAudio &&
             !isMobile &&
             isProgressIndicatorOnHoverShown && (
               <div
@@ -525,7 +537,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
                       : ""
                   }`}
                   onClick={togglePauseResume}
-                  disabled={isProcessingRecordedAudio || isResizing}
+                  disabled={isProcessingRecordedAudio || isProcessingAudio}
                 >
                   <img
                     src={isPausedRecordedAudio ? playIcon : pauseIcon}
@@ -557,7 +569,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
                   className={`voice-visualizer__btn ${
                     controlButtonsClassName ?? ""
                   }`}
-                  disabled={isProcessingRecordedAudio || isResizing}
+                  disabled={isProcessingRecordedAudio || isProcessingAudio}
                 >
                   Clear
                 </button>
@@ -568,7 +580,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
                   className={`voice-visualizer__btn ${
                     controlButtonsClassName ?? ""
                   }`}
-                  disabled={isProcessingRecordedAudio || isResizing}
+                  disabled={isProcessingRecordedAudio || isProcessingAudio}
                 >
                   Download Audio
                 </button>
