@@ -64,9 +64,21 @@ function useVoiceVisualizer(): Controls {
 
         const audioBuffer = await recordedBlob.arrayBuffer();
         const audioContext = new AudioContext();
-        const buffer = await audioContext.decodeAudioData(audioBuffer);
-        setBufferFromRecordedBlob(buffer);
-        setDuration(buffer.duration - 0.06);
+
+        const decodeSuccessCallback = (buffer: AudioBuffer) => {
+          setBufferFromRecordedBlob(buffer);
+          setDuration(buffer.duration - 0.06);
+        };
+
+        const decodeErrorCallback = (error: Error) => {
+          setError(error);
+        };
+
+        void audioContext.decodeAudioData(
+          audioBuffer,
+          decodeSuccessCallback,
+          decodeErrorCallback,
+        );
       } catch (error) {
         console.error("Error processing the audio blob:", error);
         if (error instanceof Error) {
