@@ -150,12 +150,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
 
     useEffect(() => {
       const onResize = () => {
-        if (
-          !canvasContainerRef.current ||
-          !canvasRef.current ||
-          !isAvailableRecordedAudio
-        )
-          return;
+        if (!canvasContainerRef.current || !canvasRef.current) return;
 
         indexSpeedRef.current = formattedSpeed;
 
