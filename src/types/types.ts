@@ -1,4 +1,4 @@
-import { MutableRefObject } from "react";
+import { Dispatch, MutableRefObject, SetStateAction } from "react";
 
 export interface BarItem {
   startY: number;
@@ -17,6 +17,8 @@ export interface Controls {
   isPausedRecordedAudio: boolean;
   isProcessingRecordedAudio: boolean;
   isCleared: boolean;
+  isAvailableRecordedAudio: boolean;
+  isPreloadedBlob: boolean;
   setPreloadedAudioBlob: (blob: unknown) => void;
   recordedBlob: Blob | null;
   bufferFromRecordedBlob: AudioBuffer | null;
@@ -26,6 +28,7 @@ export interface Controls {
   saveAudioFile: () => void;
   clearCanvas: () => void;
   error: Error | null;
+  _setIsProcessingRecordedAudio: Dispatch<SetStateAction<boolean>>;
   _handleTimeUpdate: () => void;
   audioRef: MutableRefObject<HTMLAudioElement | null>;
 }
@@ -88,3 +91,11 @@ export interface PaintLineParams {
   w: number;
   h: number;
 }
+
+export type GetBarsDataParams = {
+  buffer: AudioBuffer;
+  height: number;
+  width: number;
+  barWidth: number;
+  gap: number;
+};

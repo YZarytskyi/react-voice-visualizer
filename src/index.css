@@ -194,16 +194,18 @@
     width: fit-content;
     margin: 0;
     padding: 0 7px;
+    opacity: 0.8;
     font-size: 12px;
     border-radius: 0 4px 4px 0;
     background-color: #575757;
-    opacity: 0.8;
+    text-align: left;
 }
 
 .voice-visualizer__progress-indicator-hovered-time.voice-visualizer__progress-indicator-hovered-time-left {
     left: unset;
     right: 1px;
     border-radius: 4px 0 0 4px;
+    text-align: right;
 }
 
 .voice-visualizer__progress-indicator {
@@ -236,6 +238,7 @@
     left: unset;
     right: 1px;
     border-radius: 4px 0 0 4px;
+    text-align: right;
 }
 
 .voice-visualizer__audio-info-container {

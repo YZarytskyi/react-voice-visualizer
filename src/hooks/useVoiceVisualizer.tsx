@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
 import { getFileExtensionFromMimeType } from "../helpers";
-
 import { Controls } from "../types/types.ts";
 
 function useVoiceVisualizer(): Controls {
@@ -9,7 +8,7 @@ function useVoiceVisualizer(): Controls {
   const [isPausedRecording, setIsPausedRecording] = useState(false);
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
   const [audioData, setAudioData] = useState<Uint8Array>(new Uint8Array(0));
-  const [isProcessingRecordedAudio, setIsProcessingRecordedAudio] =
+  const [isProcessingRecordedAudio, _setIsProcessingRecordedAudio] =
     useState(false);
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
   const [bufferFromRecordedBlob, setBufferFromRecordedBlob] =
@@ -21,6 +20,7 @@ function useVoiceVisualizer(): Controls {
   const [isPausedRecordedAudio, setIsPausedRecordedAudio] = useState(true);
   const [currentAudioTime, setCurrentAudioTime] = useState(0);
   const [isCleared, setIsCleared] = useState(true);
+  const [isPreloadedBlob, setIsPreloadedBlob] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -31,6 +31,10 @@ function useVoiceVisualizer(): Controls {
   const rafRecordingRef = useRef<number | null>(null);
   const rafCurrentTimeUpdateRef = useRef<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const isAvailableRecordedAudio = Boolean(
+    bufferFromRecordedBlob && !isProcessingRecordedAudio,
+  );
 
   useEffect(() => {
     if (!isRecordingInProgress || isPausedRecording) return;
@@ -47,7 +51,7 @@ function useVoiceVisualizer(): Controls {
   }, [prevTime, isPausedRecording, isRecordingInProgress]);
 
   useEffect(() => {
-    if (!recordedBlob  || recordedBlob.size === 0) return;
+    if (!recordedBlob || recordedBlob.size === 0) return;
 
     const processBlob = async () => {
       try {
@@ -63,7 +67,6 @@ function useVoiceVisualizer(): Controls {
         const buffer = await audioContext.decodeAudioData(audioBuffer);
         setBufferFromRecordedBlob(buffer);
         setDuration(buffer.duration - 0.06);
-        setIsProcessingRecordedAudio(false);
       } catch (error) {
         console.error("Error processing the audio blob:", error);
         if (error instanceof Error) {
@@ -110,6 +113,21 @@ function useVoiceVisualizer(): Controls {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!isCleared && !isPreloadedBlob) {
+      window.addEventListener("beforeunload", handleBeforeUnload);
+    }
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isCleared, isPreloadedBlob]);
+
+  const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    e.preventDefault();
+    e.returnValue = "";
+  };
 
   const getUserMedia = () => {
     navigator.mediaDevices
@@ -172,7 +190,7 @@ function useVoiceVisualizer(): Controls {
   const stopRecording = () => {
     if (!isRecordingInProgress) return;
 
-    setIsProcessingRecordedAudio(true);
+    _setIsProcessingRecordedAudio(true);
     setIsRecordingInProgress(false);
     setRecordingTime(0);
     setIsPausedRecording(false);
@@ -219,7 +237,7 @@ function useVoiceVisualizer(): Controls {
 
     setAudioStream(null);
     setIsRecordingInProgress(false);
-    setIsProcessingRecordedAudio(false);
+    _setIsProcessingRecordedAudio(false);
     setRecordedBlob(null);
     setBufferFromRecordedBlob(null);
     setRecordingTime(0);
@@ -237,8 +255,9 @@ function useVoiceVisualizer(): Controls {
   const setPreloadedAudioBlob = (blob: unknown) => {
     if (blob instanceof Blob) {
       clearCanvas();
+      setIsPreloadedBlob(true);
       setIsCleared(false);
-      setIsProcessingRecordedAudio(true);
+      _setIsProcessingRecordedAudio(true);
       setIsRecordingInProgress(false);
       setRecordingTime(0);
       setIsPausedRecording(false);
@@ -263,7 +282,7 @@ function useVoiceVisualizer(): Controls {
       return;
     }
 
-    if (audioRef.current && bufferFromRecordedBlob) {
+    if (audioRef.current && isAvailableRecordedAudio) {
       if (audioRef.current?.paused) {
         audioRef.current?.addEventListener("ended", onEndedRecordedAudio);
         void audioRef.current?.play();
@@ -311,6 +330,8 @@ function useVoiceVisualizer(): Controls {
     isPausedRecordedAudio,
     bufferFromRecordedBlob,
     isCleared,
+    isAvailableRecordedAudio,
+    isPreloadedBlob,
     setPreloadedAudioBlob,
     startRecording,
     togglePauseResume,
@@ -318,6 +339,7 @@ function useVoiceVisualizer(): Controls {
     saveAudioFile,
     clearCanvas,
     error,
+    _setIsProcessingRecordedAudio,
     _handleTimeUpdate,
     audioRef,
   };

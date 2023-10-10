@@ -48,6 +48,7 @@ interface VoiceVisualizerProps {
   isDefaultUIShown?: boolean;
   defaultMicrophoneIconColor?: string;
   defaultAudioWaveIconColor?: string;
+  mainContainerClassName?: string;
   canvasContainerClassName?: string;
   isProgressIndicatorShown?: boolean;
   progressIndicatorClassName?: string;
@@ -80,11 +81,13 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
         stopRecording,
         saveAudioFile,
         recordingTime,
+        isAvailableRecordedAudio,
         isPausedRecordedAudio,
         isPausedRecording,
         isProcessingRecordedAudio,
         isCleared,
         clearCanvas,
+        _setIsProcessingRecordedAudio,
         _handleTimeUpdate,
       },
       width = "100%",
@@ -104,6 +107,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
       isDefaultUIShown = true,
       defaultMicrophoneIconColor = mainBarColor,
       defaultAudioWaveIconColor = mainBarColor,
+      mainContainerClassName,
       canvasContainerClassName,
       isProgressIndicatorShown = !onlyRecording,
       progressIndicatorClassName,
@@ -128,10 +132,11 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
       useState(false);
     const [screenWidth, setScreenWidth] = useState(0);
 
+    const isMobile = screenWidth < 768;
     const formattedSpeed = Math.trunc(speed);
     const formattedGap = Math.trunc(gap);
     const formattedBarWidth = Math.trunc(
-      screenWidth < 768 && formattedGap > 0 ? barWidth + 1 : barWidth,
+      isMobile && formattedGap > 0 ? barWidth + 1 : barWidth,
     );
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -215,17 +220,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     ]);
 
     useEffect(() => {
-      if (!isCleared) {
-        window.addEventListener("beforeunload", handleBeforeUnload);
-      }
-
-      return () => {
-        window.removeEventListener("beforeunload", handleBeforeUnload);
-      };
-    }, [isCleared]);
-
-    useEffect(() => {
-      if (!bufferFromRecordedBlob) return;
+      if (!isAvailableRecordedAudio) return;
 
       if (isRecordedCanvasHovered) {
         canvasRef.current?.addEventListener("mouseleave", hideTimeIndicator);
@@ -246,7 +241,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
           );
         }
       };
-    }, [isRecordedCanvasHovered, bufferFromRecordedBlob]);
+    }, [isRecordedCanvasHovered, isAvailableRecordedAudio]);
 
     useEffect(() => {
       if (
@@ -262,21 +257,17 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
         return;
       }
 
-      const processBlob = () => {
-        picksRef.current = [];
+      picksRef.current = [];
 
-        setBarsData(
-          getBarsData(
-            bufferFromRecordedBlob,
-            canvasCurrentHeight,
-            canvasWidth,
-            formattedBarWidth,
-            formattedGap,
-          ),
-        );
-      };
+      const newBarsData = getBarsData({
+        buffer: bufferFromRecordedBlob,
+        height: canvasCurrentHeight,
+        width: canvasWidth,
+        barWidth: formattedBarWidth,
+        gap: formattedGap,
+      });
 
-      void processBlob();
+      setBarsData(newBarsData);
 
       canvasRef.current?.addEventListener(
         "mousemove",
@@ -298,7 +289,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     ]);
 
     useEffect(() => {
-      if (onlyRecording || !barsData.length || !canvasRef.current) return;
+      if (onlyRecording || !barsData?.length || !canvasRef.current) return;
 
       if (isCleared) {
         setBarsData([]);
@@ -317,6 +308,8 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
         rounded,
         duration,
       });
+
+      _setIsProcessingRecordedAudio(false);
     }, [
       barsData,
       currentAudioTime,
@@ -335,11 +328,6 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
         });
       }
     }, [isProcessingRecordedAudio]);
-
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      e.returnValue = "";
-    };
 
     const showTimeIndicator = () => {
       setIsRecordedCanvasHovered(true);
@@ -367,7 +355,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     };
 
     return (
-      <div className="voice-visualizer">
+      <div className={`voice-visualizer ${mainContainerClassName ?? ""}`}>
         <div
           className={`voice-visualizer__canvas-container ${
             canvasContainerClassName ?? ""
@@ -414,7 +402,8 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
             </p>
           )}
           {isRecordedCanvasHovered &&
-            bufferFromRecordedBlob &&
+            isAvailableRecordedAudio &&
+            !isMobile &&
             isProgressIndicatorOnHoverShown && (
               <div
                 className={`voice-visualizer__progress-indicator-hovered ${
@@ -422,10 +411,6 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
                 }`}
                 style={{
                   left: hoveredOffsetX,
-                  display:
-                    bufferFromRecordedBlob && screenWidth > 768
-                      ? "block"
-                      : "none",
                 }}
               >
                 {isProgressIndicatorTimeOnHoverShown && (
@@ -445,7 +430,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
                 )}
               </div>
             )}
-          {bufferFromRecordedBlob && duration && isProgressIndicatorShown ? (
+          {isProgressIndicatorShown && isAvailableRecordedAudio && duration ? (
             <div
               className={`voice-visualizer__progress-indicator ${
                 progressIndicatorClassName ?? ""
@@ -479,7 +464,9 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
                   {formatRecordingTime(recordingTime)}
                 </p>
               )}
-              {duration ? <p>{formatDurationTime(duration)}</p> : null}
+              {duration && !isProcessingRecordedAudio ? (
+                <p>{formatDurationTime(duration)}</p>
+              ) : null}
             </div>
 
             <div className="voice-visualizer__buttons-container">
@@ -549,6 +536,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
                   className={`voice-visualizer__btn ${
                     controlButtonsClassName ?? ""
                   }`}
+                  disabled={isProcessingRecordedAudio}
                 >
                   Download Audio
                 </button>
@@ -557,7 +545,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
           </>
         )}
 
-        {bufferFromRecordedBlob && (
+        {isAvailableRecordedAudio && (
           <audio
             ref={ref}
             src={audioSrc}

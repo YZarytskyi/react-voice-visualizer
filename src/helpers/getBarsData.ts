@@ -1,12 +1,12 @@
-import { BarsData } from "../types/types.ts";
+import { BarsData, GetBarsDataParams } from "../types/types.ts";
 
-export const getBarsData = (
-  buffer: AudioBuffer,
-  height: number,
-  width: number,
-  barWidth: number,
-  gap: number,
-): BarsData[] => {
+export const getBarsData = ({
+  buffer,
+  height,
+  width,
+  barWidth,
+  gap,
+}: GetBarsDataParams): BarsData[] => {
   const bufferData = buffer.getChannelData(0);
   const units = width / (barWidth + gap * barWidth);
   const step = Math.floor(bufferData.length / units);
