@@ -32,7 +32,8 @@ export interface Controls {
   clearCanvas: () => void;
   setCurrentAudioTime: Dispatch<SetStateAction<number>>;
   error: Error | null;
-  _setIsProcessingRecordedAudio: Dispatch<SetStateAction<boolean>>;
+  _setIsProcessingAudioOnComplete: Dispatch<SetStateAction<boolean>>;
+  _setIsProcessingOnResize: Dispatch<SetStateAction<boolean>>;
   audioRef: MutableRefObject<HTMLAudioElement | null>;
 }
 
@@ -113,6 +114,12 @@ export interface useVoiceVisualizerParams {
   onStartAudioPlayback?: () => void;
   onPausedAudioPlayback?: () => void;
   onResumedAudioPlayback?: () => void;
+}
+
+export interface UseWebWorkerParams<T> {
+  fn: AnyFunction;
+  initialValue: T;
+  onMessageReceived?: () => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

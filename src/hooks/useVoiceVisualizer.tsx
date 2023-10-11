@@ -23,7 +23,7 @@ function useVoiceVisualizer({
   const [isPausedRecording, setIsPausedRecording] = useState(false);
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
   const [audioData, setAudioData] = useState<Uint8Array>(new Uint8Array(0));
-  const [isProcessingRecordedAudio, _setIsProcessingRecordedAudio] =
+  const [isProcessingAudioOnComplete, _setIsProcessingAudioOnComplete] =
     useState(false);
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
   const [bufferFromRecordedBlob, setBufferFromRecordedBlob] =
@@ -36,6 +36,7 @@ function useVoiceVisualizer({
   const [currentAudioTime, setCurrentAudioTime] = useState(0);
   const [isCleared, setIsCleared] = useState(true);
   const [isPreloadedBlob, setIsPreloadedBlob] = useState(false);
+  const [isProcessingOnResize, _setIsProcessingOnResize] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -48,12 +49,14 @@ function useVoiceVisualizer({
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const isAvailableRecordedAudio = Boolean(
-    bufferFromRecordedBlob && !isProcessingRecordedAudio,
+    bufferFromRecordedBlob && !isProcessingAudioOnComplete,
   );
   const formattedDuration = formatDurationTime(duration);
   const formattedRecordingTime = formatRecordingTime(recordingTime);
   const formattedRecordedAudioCurrentTime =
     formatRecordedAudioTime(currentAudioTime);
+  const isProcessingRecordedAudio =
+    isProcessingOnResize || isProcessingAudioOnComplete;
 
   useEffect(() => {
     if (!isRecordingInProgress || isPausedRecording) return;
@@ -229,7 +232,7 @@ function useVoiceVisualizer({
     if (!isRecordingInProgress) return;
 
     if (onStopRecording) onStopRecording();
-    _setIsProcessingRecordedAudio(true);
+    _setIsProcessingAudioOnComplete(true);
     setIsRecordingInProgress(false);
     setRecordingTime(0);
     setIsPausedRecording(false);
@@ -280,7 +283,7 @@ function useVoiceVisualizer({
     if (onClearCanvas) onClearCanvas();
     setAudioStream(null);
     setIsRecordingInProgress(false);
-    _setIsProcessingRecordedAudio(false);
+    _setIsProcessingAudioOnComplete(false);
     setRecordedBlob(null);
     setBufferFromRecordedBlob(null);
     setRecordingTime(0);
@@ -300,7 +303,7 @@ function useVoiceVisualizer({
       clearCanvas();
       setIsPreloadedBlob(true);
       setIsCleared(false);
-      _setIsProcessingRecordedAudio(true);
+      _setIsProcessingAudioOnComplete(true);
       setIsRecordingInProgress(false);
       setRecordingTime(0);
       setIsPausedRecording(false);
@@ -401,7 +404,8 @@ function useVoiceVisualizer({
     clearCanvas,
     setCurrentAudioTime,
     error,
-    _setIsProcessingRecordedAudio,
+    _setIsProcessingAudioOnComplete,
+    _setIsProcessingOnResize,
     audioRef,
   };
 }

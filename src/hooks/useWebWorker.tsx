@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { AnyFunction } from "../types/types";
+import { AnyFunction, UseWebWorkerParams } from "../types/types";
 
 const workerHandler = (fn: AnyFunction) => {
   onmessage = (event) => {
@@ -8,7 +8,11 @@ const workerHandler = (fn: AnyFunction) => {
   };
 };
 
-export function useWebWorker<T, V>(fn: AnyFunction, initialValue: T) {
+export function useWebWorker<T, V>({
+  fn,
+  initialValue,
+  onMessageReceived,
+}: UseWebWorkerParams<T>) {
   const [result, setResult] = useState<T>(initialValue);
 
   const run = (value: V) => {
@@ -20,6 +24,7 @@ export function useWebWorker<T, V>(fn: AnyFunction, initialValue: T) {
       if (event.data) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         setResult(event.data);
+        if (onMessageReceived) onMessageReceived();
         worker.terminate();
       }
     };
