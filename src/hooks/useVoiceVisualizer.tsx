@@ -351,8 +351,10 @@ function useVoiceVisualizer({
         if (onPausedAudioPlayback) onPausedAudioPlayback();
         audioRef.current.removeEventListener("ended", onEndedRecordedAudio);
         audioRef.current.pause();
-        setCurrentAudioTime(audioRef.current.currentTime);
         setIsPausedRecordedAudio(true);
+        const newCurrentTime = audioRef.current.currentTime;
+        setCurrentAudioTime(newCurrentTime);
+        audioRef.current.currentTime = newCurrentTime;
       }
     }
   };
