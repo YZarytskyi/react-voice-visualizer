@@ -33,6 +33,7 @@ import microphoneIcon from "../assets/microphone.svg";
 import playIcon from "../assets/play.svg";
 import pauseIcon from "../assets/pause.svg";
 import stopIcon from "../assets/stop.svg";
+import useLatest from "../hooks/useLatest.tsx";
 
 interface VoiceVisualizerProps {
   controls: Controls;
@@ -137,7 +138,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     const [canvasWidth, setCanvasWidth] = useState(0);
     const [isRecordedCanvasHovered, setIsRecordedCanvasHovered] =
       useState(false);
-    const [screenWidth, setScreenWidth] = useState(0);
+    const [screenWidth, setScreenWidth] = useState(window.innerWidth);
     const [isResizing, setIsResizing] = useState(false);
 
     const isMobile = screenWidth < 768;
@@ -154,6 +155,8 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     const index2Ref = useRef(formattedBarWidth);
     const canvasContainerRef = useRef<HTMLDivElement | null>(null);
 
+    const currentScreenWidth = useLatest(screenWidth);
+
     const {
       result: barsData,
       setResult: setBarsData,
@@ -169,15 +172,18 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     const unit = formattedBarWidth + formattedGap * formattedBarWidth;
 
     useEffect(() => {
-      debouncedOnResize();
+      onResize();
 
       const handleResize = () => {
-        if (isAvailableRecordedAudio && screenWidth !== window.innerWidth) {
+        if (currentScreenWidth.current === window.innerWidth) return;
+
+        if (isAvailableRecordedAudio) {
           setScreenWidth(window.innerWidth);
           _setIsProcessingOnResize(true);
           setIsResizing(true);
           debouncedOnResize();
         } else {
+          setScreenWidth(window.innerWidth);
           onResize();
         }
       };
