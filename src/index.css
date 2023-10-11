@@ -205,7 +205,6 @@
     left: unset;
     right: 1px;
     border-radius: 4px 0 0 4px;
-    text-align: right;
 }
 
 .voice-visualizer__progress-indicator {
@@ -223,7 +222,7 @@
     left: 1px;
     width: fit-content;
     box-sizing: border-box;
-    min-width: 41px;
+    min-width: 37px;
     margin: 0;
     padding: 0 7px;
     font-size: 12px;
@@ -238,7 +237,6 @@
     left: unset;
     right: 1px;
     border-radius: 4px 0 0 4px;
-    text-align: right;
 }
 
 .voice-visualizer__audio-info-container {

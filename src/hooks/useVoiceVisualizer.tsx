@@ -212,14 +212,15 @@ function useVoiceVisualizer({
     if (mediaRecorderRef.current) setRecordedBlob(event.data);
   };
 
-  const _handleTimeUpdate = () => {
+  const handleTimeUpdate = () => {
     if (rafCurrentTimeUpdateRef.current) {
       cancelAnimationFrame(rafCurrentTimeUpdateRef.current);
     }
 
     if (!audioRef.current) return;
     setCurrentAudioTime(audioRef.current.currentTime);
-    rafCurrentTimeUpdateRef.current = requestAnimationFrame(_handleTimeUpdate);
+
+    rafCurrentTimeUpdateRef.current = requestAnimationFrame(handleTimeUpdate);
   };
 
   const startRecording = () => {
@@ -343,13 +344,14 @@ function useVoiceVisualizer({
           onResumedAudioPlayback();
         }
         audioRef.current?.addEventListener("ended", onEndedRecordedAudio);
-        void audioRef.current?.play();
+        handleTimeUpdate();
         setIsPausedRecordedAudio(false);
-        _handleTimeUpdate();
+        void audioRef.current?.play();
       } else {
         if (onPausedAudioPlayback) onPausedAudioPlayback();
         audioRef.current?.removeEventListener("ended", onEndedRecordedAudio);
         audioRef.current?.pause();
+        audioRef.current.currentTime = currentAudioTime;
         setIsPausedRecordedAudio(true);
       }
     }

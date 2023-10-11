@@ -147,6 +147,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     const formattedBarWidth = Math.trunc(
       isMobile && formattedGap > 0 ? barWidth + 1 : barWidth,
     );
+    const unit = formattedBarWidth + formattedGap * formattedBarWidth;
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const picksRef = useRef<Array<BarItem | null>>([]);
@@ -168,8 +169,6 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     });
 
     const debouncedOnResize = useDebounce(onResize);
-
-    const unit = formattedBarWidth + formattedGap * formattedBarWidth;
 
     useEffect(() => {
       onResize();
@@ -276,7 +275,6 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
       }
 
       picksRef.current = [];
-
       const bufferData = bufferFromRecordedBlob.getChannelData(0);
 
       run({
@@ -408,6 +406,9 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
       }
     };
 
+    const timeIndicatorStyleLeft =
+      (currentAudioTime / duration) * canvasCurrentWidth;
+
     return (
       <div className={`voice-visualizer ${mainContainerClassName ?? ""}`}>
         <div
@@ -494,7 +495,10 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
                 progressIndicatorClassName ?? ""
               }`}
               style={{
-                left: (currentAudioTime / duration) * canvasCurrentWidth,
+                left:
+                  timeIndicatorStyleLeft < canvasCurrentWidth - 1
+                    ? timeIndicatorStyleLeft
+                    : canvasCurrentWidth - 1,
               }}
             >
               {isProgressIndicatorTimeShown && (
