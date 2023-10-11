@@ -336,22 +336,22 @@ function useVoiceVisualizer({
         cancelAnimationFrame(rafCurrentTimeUpdateRef.current);
       }
 
-      if (audioRef.current?.paused) {
+      if (audioRef.current.paused) {
         if (onStartAudioPlayback && currentAudioTime === 0) {
           onStartAudioPlayback();
         }
         if (onResumedAudioPlayback && currentAudioTime !== 0) {
           onResumedAudioPlayback();
         }
-        audioRef.current?.addEventListener("ended", onEndedRecordedAudio);
+        audioRef.current.addEventListener("ended", onEndedRecordedAudio);
         handleTimeUpdate();
         setIsPausedRecordedAudio(false);
         void audioRef.current?.play();
       } else {
         if (onPausedAudioPlayback) onPausedAudioPlayback();
-        audioRef.current?.removeEventListener("ended", onEndedRecordedAudio);
-        audioRef.current?.pause();
-        audioRef.current.currentTime = currentAudioTime;
+        audioRef.current.removeEventListener("ended", onEndedRecordedAudio);
+        audioRef.current.pause();
+        setCurrentAudioTime(audioRef.current.currentTime);
         setIsPausedRecordedAudio(true);
       }
     }

@@ -398,11 +398,12 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     > = (e) => {
       const audioRef = ref as MutableRefObject<HTMLAudioElement>;
       if (audioRef.current && canvasRef.current) {
-        audioRef.current.currentTime =
+        const newCurrentTime =
           (duration / canvasCurrentWidth) *
           (e.clientX - canvasRef.current.getBoundingClientRect().left);
 
-        setCurrentAudioTime(audioRef.current.currentTime);
+        audioRef.current.currentTime = newCurrentTime;
+        setCurrentAudioTime(newCurrentTime);
       }
     };
 
