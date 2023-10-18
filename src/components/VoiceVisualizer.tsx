@@ -18,6 +18,7 @@ import {
 } from "../helpers";
 import { useWebWorker } from "../hooks/useWebWorker.tsx";
 import { useDebounce } from "../hooks/useDebounce.tsx";
+import { useLatest } from "../hooks/useLatest.tsx";
 import {
   BarsData,
   Controls,
@@ -33,7 +34,6 @@ import microphoneIcon from "../assets/microphone.svg";
 import playIcon from "../assets/play.svg";
 import pauseIcon from "../assets/pause.svg";
 import stopIcon from "../assets/stop.svg";
-import useLatest from "../hooks/useLatest.tsx";
 
 interface VoiceVisualizerProps {
   controls: Controls;
@@ -79,8 +79,8 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
         isRecordingInProgress,
         recordedBlob,
         duration,
-        audioSrc,
         currentAudioTime,
+        audioSrc,
         bufferFromRecordedBlob,
         togglePauseResume,
         startRecording,
@@ -155,6 +155,8 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     const indexRef = useRef(formattedBarWidth);
     const index2Ref = useRef(formattedBarWidth);
     const canvasContainerRef = useRef<HTMLDivElement | null>(null);
+
+    const audioRef = ref as MutableRefObject<HTMLAudioElement>;
 
     const currentScreenWidth = useLatest(screenWidth);
 
@@ -379,6 +381,9 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     function completedAudioProcessing() {
       _setIsProcessingOnResize(false);
       _setIsProcessingAudioOnComplete(false);
+      if (audioRef?.current) {
+        audioRef.current.src = audioSrc;
+      }
     }
 
     const showTimeIndicator = () => {
@@ -396,8 +401,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     const handleRecordedAudioCurrentTime: MouseEventHandler<
       HTMLCanvasElement
     > = (e) => {
-      const audioRef = ref as MutableRefObject<HTMLAudioElement>;
-      if (audioRef.current && canvasRef.current) {
+      if (audioRef?.current && canvasRef.current) {
         const newCurrentTime =
           (duration / canvasCurrentWidth) *
           (e.clientX - canvasRef.current.getBoundingClientRect().left);
@@ -606,15 +610,6 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
               )}
             </div>
           </>
-        )}
-
-        {isAvailableRecordedAudio && (
-          <audio
-            ref={ref}
-            src={audioSrc}
-            controls={true}
-            style={{ display: "none" }}
-          />
         )}
       </div>
     );

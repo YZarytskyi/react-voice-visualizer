@@ -6,6 +6,7 @@ export interface BarItem {
 }
 
 export interface Controls {
+  audioRef: MutableRefObject<HTMLAudioElement | null>;
   isRecordingInProgress: boolean;
   isPausedRecording: boolean;
   audioData: Uint8Array;
@@ -18,8 +19,6 @@ export interface Controls {
   isProcessingRecordedAudio: boolean;
   isCleared: boolean;
   isAvailableRecordedAudio: boolean;
-  isPreloadedBlob: boolean;
-  setPreloadedAudioBlob: (blob: unknown) => void;
   recordedBlob: Blob | null;
   bufferFromRecordedBlob: AudioBuffer | null;
   formattedDuration: string;
@@ -34,7 +33,6 @@ export interface Controls {
   error: Error | null;
   _setIsProcessingAudioOnComplete: Dispatch<SetStateAction<boolean>>;
   _setIsProcessingOnResize: Dispatch<SetStateAction<boolean>>;
-  audioRef: MutableRefObject<HTMLAudioElement | null>;
 }
 
 export interface BarsData {
@@ -114,6 +112,7 @@ export interface useVoiceVisualizerParams {
   onStartAudioPlayback?: () => void;
   onPausedAudioPlayback?: () => void;
   onResumedAudioPlayback?: () => void;
+  onErrorPlayingAudio?: (error: Error) => void;
 }
 
 export interface UseWebWorkerParams<T> {

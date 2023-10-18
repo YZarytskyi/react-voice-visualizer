@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef } from "react";
 
 type UseLatestReturnType<T> = { readonly current: T };
 
-function useLatest<T>(value: T): UseLatestReturnType<T> {
+export function useLatest<T>(value: T): UseLatestReturnType<T> {
   const valueRef = useRef(value);
 
   useLayoutEffect(() => {
@@ -11,5 +11,3 @@ function useLatest<T>(value: T): UseLatestReturnType<T> {
 
   return valueRef;
 }
-
-export default useLatest;
