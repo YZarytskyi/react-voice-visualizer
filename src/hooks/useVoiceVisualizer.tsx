@@ -191,7 +191,7 @@ function useVoiceVisualizer({
   const startRecording = () => {
     if (isRecordingInProgress) return;
 
-    clearCanvas();
+    if (!isCleared) clearCanvas();
     getUserMedia();
     setIsCleared(false);
     if (onStartRecording) onStartRecording();
@@ -382,6 +382,7 @@ function useVoiceVisualizer({
     clearCanvas,
     setCurrentAudioTime,
     error,
+    isProcessingOnResize,
     _setIsProcessingAudioOnComplete,
     _setIsProcessingOnResize,
   };

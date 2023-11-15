@@ -31,6 +31,7 @@ export interface Controls {
   clearCanvas: () => void;
   setCurrentAudioTime: Dispatch<SetStateAction<number>>;
   error: Error | null;
+  isProcessingOnResize: boolean;
   _setIsProcessingAudioOnComplete: Dispatch<SetStateAction<boolean>>;
   _setIsProcessingOnResize: Dispatch<SetStateAction<boolean>>;
 }

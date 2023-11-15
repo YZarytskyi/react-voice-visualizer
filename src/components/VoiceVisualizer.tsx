@@ -96,8 +96,9 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
         formattedRecordedAudioCurrentTime,
         clearCanvas,
         setCurrentAudioTime,
-        _setIsProcessingAudioOnComplete,
+        isProcessingOnResize,
         _setIsProcessingOnResize,
+        _setIsProcessingAudioOnComplete,
       },
       width = "100%",
       height = 200,
@@ -201,7 +202,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
       if (!canvasRef.current) return;
 
       if (indexSpeedRef.current >= formattedSpeed || !audioData.length) {
-        indexSpeedRef.current = 0;
+        indexSpeedRef.current = audioData.length ? 0 : formattedSpeed;
         drawByLiveStream({
           audioData,
           unit,
@@ -381,7 +382,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
     function completedAudioProcessing() {
       _setIsProcessingOnResize(false);
       _setIsProcessingAudioOnComplete(false);
-      if (audioRef?.current) {
+      if (audioRef?.current && !isProcessingOnResize) {
         audioRef.current.src = audioSrc;
       }
     }
