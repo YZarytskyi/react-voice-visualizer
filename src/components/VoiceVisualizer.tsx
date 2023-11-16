@@ -89,6 +89,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
         isAvailableRecordedAudio,
         isPausedRecordedAudio,
         isPausedRecording,
+        isProcessingStartRecording,
         isProcessingRecordedAudio,
         isCleared,
         formattedDuration,
@@ -539,24 +540,26 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
 
             <div className="voice-visualizer__buttons-container">
               {isRecordingInProgress && (
-                <button
-                  className={`voice-visualizer__btn-left ${
-                    isPausedRecording
-                      ? "voice-visualizer__btn-left-microphone"
-                      : ""
-                  }`}
-                  onClick={togglePauseResume}
-                >
-                  <img
-                    src={isPausedRecording ? microphoneIcon : pauseIcon}
-                    alt={isPausedRecording ? "Play" : "Pause"}
-                  />
-                </button>
+                <div className="voice-visualizer__btn-container">
+                  <button
+                    className={`voice-visualizer__btn-left ${
+                      isPausedRecording
+                        ? "voice-visualizer__btn-left-microphone"
+                        : ""
+                    }`}
+                    onClick={togglePauseResume}
+                  >
+                    <img
+                      src={isPausedRecording ? microphoneIcon : pauseIcon}
+                      alt={isPausedRecording ? "Play" : "Pause"}
+                    />
+                  </button>
+                </div>
               )}
               {!isCleared && (
                 <button
                   className={`voice-visualizer__btn-left ${
-                    isRecordingInProgress
+                    isRecordingInProgress || isProcessingStartRecording
                       ? "voice-visualizer__visually-hidden"
                       : ""
                   }`}
@@ -571,9 +574,18 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
               )}
               {isCleared && (
                 <button
-                  className="voice-visualizer__btn-center"
+                  className={`voice-visualizer__btn-center relative ${
+                    isProcessingStartRecording
+                      ? "voice-visualizer__btn-center--border-transparent"
+                      : ""
+                  }`}
                   onClick={startRecording}
                 >
+                  {isProcessingStartRecording && (
+                    <div className="spinner__wrapper">
+                      <div className="spinner" />
+                    </div>
+                  )}
                   <img src={microphoneIcon} alt="Microphone" />
                 </button>
               )}

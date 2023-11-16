@@ -32,6 +32,7 @@ export interface Controls {
   setCurrentAudioTime: Dispatch<SetStateAction<number>>;
   error: Error | null;
   isProcessingOnResize: boolean;
+  isProcessingStartRecording: boolean;
   _setIsProcessingAudioOnComplete: Dispatch<SetStateAction<boolean>>;
   _setIsProcessingOnResize: Dispatch<SetStateAction<boolean>>;
 }

@@ -38,6 +38,8 @@ function useVoiceVisualizer({
   const [isCleared, setIsCleared] = useState(true);
   const [isProcessingOnResize, _setIsProcessingOnResize] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const [isProcessingStartRecording, setIsProcessingStartRecording] =
+    useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -131,11 +133,14 @@ function useVoiceVisualizer({
   };
 
   const getUserMedia = () => {
-    setIsRecordingInProgress(true);
+    setIsProcessingStartRecording(true);
 
     navigator.mediaDevices
       .getUserMedia({ audio: true })
       .then((stream) => {
+        setIsCleared(false);
+        setIsProcessingStartRecording(false);
+        setIsRecordingInProgress(true);
         setPrevTime(performance.now());
         setAudioStream(stream);
         audioContextRef.current = new window.AudioContext();
@@ -152,11 +157,12 @@ function useVoiceVisualizer({
           handleDataAvailable,
         );
         mediaRecorderRef.current.start();
+        if (onStartRecording) onStartRecording();
 
         recordingFrame();
       })
       .catch((error) => {
-        setIsRecordingInProgress(false);
+        setIsProcessingStartRecording(false);
         setError(
           error instanceof Error
             ? error
@@ -193,8 +199,6 @@ function useVoiceVisualizer({
 
     if (!isCleared) clearCanvas();
     getUserMedia();
-    setIsCleared(false);
-    if (onStartRecording) onStartRecording();
   };
 
   const stopRecording = () => {
@@ -251,6 +255,7 @@ function useVoiceVisualizer({
     sourceRef.current = null;
 
     setAudioStream(null);
+    setIsProcessingStartRecording(false);
     setIsRecordingInProgress(false);
     _setIsProcessingAudioOnComplete(false);
     setRecordedBlob(null);
@@ -383,6 +388,7 @@ function useVoiceVisualizer({
     setCurrentAudioTime,
     error,
     isProcessingOnResize,
+    isProcessingStartRecording,
     _setIsProcessingAudioOnComplete,
     _setIsProcessingOnResize,
   };
