@@ -580,6 +580,7 @@ const VoiceVisualizer = forwardRef<Ref, VoiceVisualizerProps>(
                       : ""
                   }`}
                   onClick={startRecording}
+                  disabled={isProcessingStartRecording}
                 >
                   {isProcessingStartRecording && (
                     <div className="spinner__wrapper">

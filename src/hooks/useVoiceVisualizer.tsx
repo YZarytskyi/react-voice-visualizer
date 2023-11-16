@@ -195,7 +195,7 @@ function useVoiceVisualizer({
   };
 
   const startRecording = () => {
-    if (isRecordingInProgress) return;
+    if (isRecordingInProgress || isProcessingStartRecording) return;
 
     if (!isCleared) clearCanvas();
     getUserMedia();
