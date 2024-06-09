@@ -33,6 +33,8 @@ export interface Controls {
   error: Error | null;
   isProcessingOnResize: boolean;
   isProcessingStartRecording: boolean;
+  isPreloadedBlob: boolean;
+  setPreloadedAudioBlob: (blob: Blob) => void;
   _setIsProcessingAudioOnComplete: Dispatch<SetStateAction<boolean>>;
   _setIsProcessingOnResize: Dispatch<SetStateAction<boolean>>;
 }
