@@ -22,14 +22,6 @@ Experience the [Demo App: Click here to explore the react-voice-visualizer](http
 
 This README provides a comprehensive guide to effectively utilizing the library's features.
 
-## Version 2.x.x Release Notes
-
-**Breaking Changes:** 
-- Ref Handling Update: In this version, the library has been enhanced to manage audio references (audioRef) internally. Users no longer need to pass ref={audioRef} separately to components. This change offers a more seamless and intuitive experience.
-
-**New Features:**
-- Preloaded Audio Blob Support: Version 2.x.x introduces the capability to set preloaded audio blobs. Users now have the flexibility to load audio blobs from various sources, such as user inputs or files using `setPreloadedAudioBlob` function, expanding the library's versatility in different scenarios.
-
 ## Installation
 
 To integrate the React Voice Visualizer library into your project, simply install it via npm or yarn:
@@ -43,6 +35,14 @@ or
 ```bash
 yarn add react-voice-visualizer
 ```
+
+## Version 2.x.x Release Notes
+
+**Breaking Changes:**
+- Ref Handling Update: In this version, the library has been enhanced to manage audio references (audioRef) internally. Users no longer need to pass ref={audioRef} separately to components. This change offers a more seamless and intuitive experience.
+
+**New Features:**
+- Preloaded Audio Blob Support: Version 2.x.x introduces the capability to set preloaded audio blobs. Users now have the flexibility to load audio blobs from various sources, such as user inputs or files using `setPreloadedAudioBlob` function, expanding the library's versatility in different scenarios.
 
 ## [Demo App](https://react-voice-visualizer.vercel.app/)
 For a live demonstration of the React Voice Visualizer library, you can check out the [Demo Voice Visualizer App](https://react-voice-visualizer.vercel.app/). This app showcases various features and functionalities of the library in action.
@@ -170,7 +170,6 @@ A component that visualizes the real-time audio wave during recording.
 
 | Props                                             | Description                                                                                                                                                                                                                                                                     | Default       | Type                         |
 |:--------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------------|:-----------------------------|
-| **`ref`**                                         | A reference to the audio element - `audioRef` from the `useVoiceVisualizer` hook.                                                                                                                                                                                               | -             | `React.RefObject` (Required) |
 | **`controls`**                                    | Provides the audio recording controls and states required for visualization.                                                                                                                                                                                                    | -             | `Controls` (Required)        |
 | **`height`**                                      | The height of the visualization canvas.                                                                                                                                                                                                                                         | `200`         | `string \| number` (Optional)          |
 | **`width`**                                       | The width of the visualization canvas.                                                                                                                                                                                                                                          | `100%`        | `string \| number` (Optional) |
@@ -187,7 +186,7 @@ A component that visualizes the real-time audio wave during recording.
 | **`animateCurrentPick`**                          | Whether to animate the current pick in the visualization.                                                                                                                                                                                                                       | `true`        | `boolean` (Optional)         |
 | **`onlyRecording`**                               | Whether to show the visualization only during voice recording.                                                                                                                                                                                                                  | `false`       | `boolean` (Optional)         |
 | **`isDefaultUIShown`**                            | Whether to show a default UI on Canvas before recording. If you want to create your own UI, set it to false.                                                                                                                                                                    | `true`        | `boolean` (Optional)         |
-| **`mainContainerClassName`**                    | The CSS class name for the main container.                                                                                                                                                                                                          | -             | `string` (Optional)          |
+| **`mainContainerClassName`**                      | The CSS class name for the main container.                                                                                                                                                                                                          | -             | `string` (Optional)          |
 | **`canvasContainerClassName`**                    | The CSS class name for the container of the visualization canvas.                                                                                                                                                                                                               | -             | `string` (Optional)          |
 | **`isProgressIndicatorShown`**                    | Whether to show the progress indicator after recording.                                                                                                                                                                                                                         | `true`        | `boolean` (Optional)         |
 | **`progressIndicatorClassName`**                  | The CSS class name for the progress indicator.                                                                                                                                                                                                                                  | -             | `string` (Optional)          |
