@@ -422,6 +422,7 @@ const VoiceVisualizer = ({
             <AudioWaveIcon color={defaultAudioWaveIconColor} />
             <AudioWaveIcon color={defaultAudioWaveIconColor} reflect />
             <button
+              type="button"
               onClick={startRecording}
               className="voice-visualizer__canvas-microphone-btn"
             >
@@ -522,6 +523,7 @@ const VoiceVisualizer = ({
             {isRecordingInProgress && (
               <div className="voice-visualizer__btn-container">
                 <button
+                  type="button"
                   className={`voice-visualizer__btn-left ${
                     isPausedRecording
                       ? "voice-visualizer__btn-left-microphone"
@@ -538,6 +540,7 @@ const VoiceVisualizer = ({
             )}
             {!isCleared && (
               <button
+                type="button"
                 className={`voice-visualizer__btn-left ${
                   isRecordingInProgress || isProcessingStartRecording
                     ? "voice-visualizer__visually-hidden"
@@ -554,6 +557,7 @@ const VoiceVisualizer = ({
             )}
             {isCleared && (
               <button
+                type="button"
                 className={`voice-visualizer__btn-center voice-visualizer__relative ${
                   isProcessingStartRecording
                     ? "voice-visualizer__btn-center--border-transparent"
@@ -571,6 +575,7 @@ const VoiceVisualizer = ({
               </button>
             )}
             <button
+              type="button"
               className={`voice-visualizer__btn-center voice-visualizer__btn-center-pause ${
                 !isRecordingInProgress
                   ? "voice-visualizer__visually-hidden"
@@ -582,6 +587,7 @@ const VoiceVisualizer = ({
             </button>
             {!isCleared && (
               <button
+                type="button"
                 onClick={clearCanvas}
                 className={`voice-visualizer__btn ${
                   controlButtonsClassName ?? ""
@@ -593,6 +599,7 @@ const VoiceVisualizer = ({
             )}
             {isDownloadAudioButtonShown && recordedBlob && (
               <button
+                type="button"
                 onClick={saveAudioFile}
                 className={`voice-visualizer__btn ${
                   controlButtonsClassName ?? ""
