@@ -164,9 +164,30 @@ const VoiceVisualizer = ({
   useEffect(() => {
     onResize();
 
+    if (!canvasContainerRef.current) return;
+
+    const rect = canvasContainerRef.current.getBoundingClientRect();
+    const canvasContainerDimensions = {
+      width: rect.width,
+      height: rect.height,
+    };
+
     const handleResize: ResizeObserverCallback = (entries) => {
       const entry = entries[0];
       if (!entry) return;
+
+      const roundedWidth = Math.round(entry.contentRect.width);
+      const roundedHeight = Math.round(entry.contentRect.height);
+
+      if (
+        roundedWidth === canvasContainerDimensions.width &&
+        roundedHeight === canvasContainerDimensions.height
+      ) {
+        return;
+      }
+
+      canvasContainerDimensions.width = roundedWidth;
+      canvasContainerDimensions.height = roundedHeight;
 
       if (isAvailableRecordedAudio) {
         _setIsProcessingOnResize(true);
@@ -178,9 +199,7 @@ const VoiceVisualizer = ({
     };
 
     const resizeObserver = new ResizeObserver(handleResize);
-    if (canvasContainerRef.current) {
-      resizeObserver.observe(canvasContainerRef.current);
-    }
+    resizeObserver.observe(canvasContainerRef.current);
 
     return () => {
       resizeObserver.disconnect();
