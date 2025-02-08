@@ -16,7 +16,6 @@ import {
 } from "../helpers";
 import { useWebWorker } from "../hooks/useWebWorker.tsx";
 import { useDebounce } from "../hooks/useDebounce.tsx";
-import { useLatest } from "../hooks/useLatest.tsx";
 import {
   BarsData,
   Controls,
@@ -150,8 +149,6 @@ const VoiceVisualizer = ({
   const index2Ref = useRef(formattedBarWidth);
   const canvasContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const currentScreenWidth = useLatest(screenWidth);
-
   const {
     result: barsData,
     setResult: setBarsData,
@@ -165,26 +162,25 @@ const VoiceVisualizer = ({
   const debouncedOnResize = useDebounce(onResize);
 
   useEffect(() => {
-    onResize();
+    if (!canvasContainerRef.current) return;
 
     const handleResize = () => {
-      if (currentScreenWidth.current === window.innerWidth) return;
+      setScreenWidth(window.innerWidth);
 
       if (isAvailableRecordedAudio) {
-        setScreenWidth(window.innerWidth);
         _setIsProcessingOnResize(true);
         setIsResizing(true);
         debouncedOnResize();
       } else {
-        setScreenWidth(window.innerWidth);
         onResize();
       }
     };
 
-    window.addEventListener("resize", handleResize);
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(canvasContainerRef.current);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      resizeObserver.disconnect();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [width, isAvailableRecordedAudio]);
