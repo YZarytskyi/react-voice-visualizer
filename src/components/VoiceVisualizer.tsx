@@ -1,36 +1,35 @@
 import {
-  useState,
+  MouseEventHandler,
   useEffect,
   useLayoutEffect,
   useRef,
-  MouseEventHandler,
+  useState,
 } from "react";
 
 import {
-  drawByLiveStream,
   drawByBlob,
+  drawByLiveStream,
+  formatRecordedAudioTime,
+  formatToInlineStyleValue,
   getBarsData,
   initialCanvasSetup,
-  formatToInlineStyleValue,
-  formatRecordedAudioTime,
 } from "../helpers";
-import { useWebWorker } from "../hooks/useWebWorker.tsx";
 import { useDebounce } from "../hooks/useDebounce.tsx";
-import { useLatest } from "../hooks/useLatest.tsx";
+import { useWebWorker } from "../hooks/useWebWorker.tsx";
 import {
+  BarItem,
   BarsData,
   Controls,
-  BarItem,
   GetBarsDataParams,
 } from "../types/types.ts";
 
 import "../index.css";
 
-import MicrophoneIcon from "../assets/MicrophoneIcon.tsx";
 import AudioWaveIcon from "../assets/AudioWaveIcon.tsx";
 import microphoneIcon from "../assets/microphone.svg";
-import playIcon from "../assets/play.svg";
+import MicrophoneIcon from "../assets/MicrophoneIcon.tsx";
 import pauseIcon from "../assets/pause.svg";
+import playIcon from "../assets/play.svg";
 import stopIcon from "../assets/stop.svg";
 
 interface VoiceVisualizerProps {
@@ -132,14 +131,14 @@ const VoiceVisualizer = ({
   const [canvasCurrentHeight, setCanvasCurrentHeight] = useState(0);
   const [canvasWidth, setCanvasWidth] = useState(0);
   const [isRecordedCanvasHovered, setIsRecordedCanvasHovered] = useState(false);
-  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const [screenWidth] = useState(window.innerWidth);
   const [isResizing, setIsResizing] = useState(false);
 
   const isMobile = screenWidth < 768;
   const formattedSpeed = Math.trunc(speed);
   const formattedGap = Math.trunc(gap);
   const formattedBarWidth = Math.trunc(
-    isMobile && formattedGap > 0 ? barWidth + 1 : barWidth,
+    isMobile && formattedGap > 0 ? barWidth + 1 : barWidth
   );
   const unit = formattedBarWidth + formattedGap * formattedBarWidth;
 
@@ -149,8 +148,6 @@ const VoiceVisualizer = ({
   const indexRef = useRef(formattedBarWidth);
   const index2Ref = useRef(formattedBarWidth);
   const canvasContainerRef = useRef<HTMLDivElement | null>(null);
-
-  const currentScreenWidth = useLatest(screenWidth);
 
   const {
     result: barsData,
@@ -167,24 +164,45 @@ const VoiceVisualizer = ({
   useEffect(() => {
     onResize();
 
-    const handleResize = () => {
-      if (currentScreenWidth.current === window.innerWidth) return;
+    if (!canvasContainerRef.current) return;
+
+    const rect = canvasContainerRef.current.getBoundingClientRect();
+    const canvasContainerDimensions = {
+      width: rect.width,
+      height: rect.height,
+    };
+
+    const handleResize: ResizeObserverCallback = (entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+
+      const roundedWidth = Math.round(entry.contentRect.width);
+      const roundedHeight = Math.round(entry.contentRect.height);
+
+      if (
+        roundedWidth === canvasContainerDimensions.width &&
+        roundedHeight === canvasContainerDimensions.height
+      ) {
+        return;
+      }
+
+      canvasContainerDimensions.width = roundedWidth;
+      canvasContainerDimensions.height = roundedHeight;
 
       if (isAvailableRecordedAudio) {
-        setScreenWidth(window.innerWidth);
         _setIsProcessingOnResize(true);
         setIsResizing(true);
         debouncedOnResize();
       } else {
-        setScreenWidth(window.innerWidth);
         onResize();
       }
     };
 
-    window.addEventListener("resize", handleResize);
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(canvasContainerRef.current);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      resizeObserver.disconnect();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [width, isAvailableRecordedAudio]);
@@ -279,7 +297,7 @@ const VoiceVisualizer = ({
       // eslint-disable-next-line react-hooks/exhaustive-deps
       canvasRef.current?.removeEventListener(
         "mousemove",
-        setCurrentHoveredOffsetX,
+        setCurrentHoveredOffsetX
       );
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -346,15 +364,15 @@ const VoiceVisualizer = ({
 
     const roundedHeight =
       Math.trunc(
-        (canvasContainerRef.current.clientHeight * window.devicePixelRatio) / 2,
+        (canvasContainerRef.current.clientHeight * window.devicePixelRatio) / 2
       ) * 2;
 
     setCanvasCurrentWidth(canvasContainerRef.current.clientWidth);
     setCanvasCurrentHeight(roundedHeight);
     setCanvasWidth(
       Math.round(
-        canvasContainerRef.current.clientWidth * window.devicePixelRatio,
-      ),
+        canvasContainerRef.current.clientWidth * window.devicePixelRatio
+      )
     );
 
     setIsResizing(false);
@@ -381,7 +399,7 @@ const VoiceVisualizer = ({
   };
 
   const handleRecordedAudioCurrentTime: MouseEventHandler<HTMLCanvasElement> = (
-    e,
+    e
   ) => {
     if (audioRef?.current && canvasRef.current) {
       const newCurrentTime =
@@ -468,7 +486,7 @@ const VoiceVisualizer = ({
                     ${progressIndicatorTimeOnHoverClassName ?? ""}`}
                 >
                   {formatRecordedAudioTime(
-                    (duration / canvasCurrentWidth) * hoveredOffsetX,
+                    (duration / canvasCurrentWidth) * hoveredOffsetX
                   )}
                 </p>
               )}
