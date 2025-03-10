@@ -72,7 +72,7 @@ const App = () => {
         if (!recordedBlob) return;
 
         console.log(recordedBlob);
-    }, [recordedBlob, error]);
+    }, [recordedBlob]);
 
     // Get the error when it occurs
     useEffect(() => {
@@ -113,18 +113,19 @@ const recorderControls = useVoiceVisualizer();
 
 ##### Parameters (All parameters are optional)
 
-| Parameter                | Type                     | Description                                                                                                                                               |
-|:-------------------------|:-------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `onStartRecording`       | `() => void`             | Callback function triggered when recording starts.                                                                                                        |
-| `onStopRecording`        | `() => void`             | Callback function triggered when recording stops.                                                                                                         |
-| `onPausedRecording`      | `() => void`             | Callback function triggered when recording is paused.                                                                                                     |
-| `onResumedRecording`     | `() => void`             | Callback function triggered when recording is resumed.                                                                                                    |
-| `onClearCanvas`          | `() => void`             | Callback function triggered when the canvas is cleared.                                                                                                   |
-| `onEndAudioPlayback`     | `() => void`             | Callback function triggered when audio playback ends.                                                                                                     |
-| `onStartAudioPlayback`   | `() => void`             | Callback function triggered when audio playback starts.                                                                                                   |
-| `onPausedAudioPlayback`  | `() => void`             | Callback function triggered when audio playback is paused.                                                                                                |
-| `onResumedAudioPlayback` | `() => void`             | Callback function triggered when audio playback is resumed.                                                                                               |
-| `onErrorPlayingAudio`    | `(error: Error) => void` | Callback function is invoked when an error occurs during the execution of `audio.play()`. It provides an opportunity to handle and respond to such error. |
+| Parameter                  | Type                     | Description                                                                                                                                               |
+|:---------------------------|:-------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `onStartRecording`         | `() => void`             | Callback function triggered when recording starts.                                                                                                        |
+| `onStopRecording`          | `() => void`             | Callback function triggered when recording stops.                                                                                                         |
+| `onPausedRecording`        | `() => void`             | Callback function triggered when recording is paused.                                                                                                     |
+| `onResumedRecording`       | `() => void`             | Callback function triggered when recording is resumed.                                                                                                    |
+| `onClearCanvas`            | `() => void`             | Callback function triggered when the canvas is cleared.                                                                                                   |
+| `onEndAudioPlayback`       | `() => void`             | Callback function triggered when audio playback ends.                                                                                                     |
+| `onStartAudioPlayback`     | `() => void`             | Callback function triggered when audio playback starts.                                                                                                   |
+| `onPausedAudioPlayback`    | `() => void`             | Callback function triggered when audio playback is paused.                                                                                                |
+| `onResumedAudioPlayback`   | `() => void`             | Callback function triggered when audio playback is resumed.                                                                                               |
+| `onErrorPlayingAudio`      | `(error: Error) => void` | Callback function is invoked when an error occurs during the execution of `audio.play()`. It provides an opportunity to handle and respond to such error. |
+| `shouldHandleBeforeUnload` | `boolean`                | Determines whether the `beforeunload` event handler should be added to the window, preventing page unload if necessary (`true` by default).               |
 
 ##### Returns
 

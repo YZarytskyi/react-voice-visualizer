@@ -19,6 +19,7 @@ function useVoiceVisualizer({
   onPausedAudioPlayback,
   onResumedAudioPlayback,
   onErrorPlayingAudio,
+  shouldHandleBeforeUnload = true,
 }: useVoiceVisualizerParams = {}): Controls {
   const [isRecordingInProgress, setIsRecordingInProgress] = useState(false);
   const [isPausedRecording, setIsPausedRecording] = useState(false);
@@ -91,14 +92,14 @@ function useVoiceVisualizer({
   }, []);
 
   useEffect(() => {
-    if (!isCleared) {
+    if (!isCleared && shouldHandleBeforeUnload) {
       window.addEventListener("beforeunload", handleBeforeUnload);
     }
 
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [isCleared]);
+  }, [isCleared, shouldHandleBeforeUnload]);
 
   const handleBeforeUnload = (e: BeforeUnloadEvent) => {
     e.preventDefault();

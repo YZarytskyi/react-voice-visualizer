@@ -117,6 +117,7 @@ export interface useVoiceVisualizerParams {
   onPausedAudioPlayback?: () => void;
   onResumedAudioPlayback?: () => void;
   onErrorPlayingAudio?: (error: Error) => void;
+  shouldHandleBeforeUnload?: boolean;
 }
 
 export interface UseWebWorkerParams<T> {
