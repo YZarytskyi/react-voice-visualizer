@@ -26,6 +26,8 @@ export interface Controls {
   formattedRecordedAudioCurrentTime: string;
   startRecording: () => void;
   togglePauseResume: () => void;
+  startAudioPlayback: () => void;
+  stopAudioPlayback: () => void;
   stopRecording: () => void;
   saveAudioFile: () => void;
   clearCanvas: () => void;
