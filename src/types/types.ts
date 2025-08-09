@@ -120,6 +120,7 @@ export interface useVoiceVisualizerParams {
   onResumedAudioPlayback?: () => void;
   onErrorPlayingAudio?: (error: Error) => void;
   shouldHandleBeforeUnload?: boolean;
+  mediaRecorderOptions?: MediaRecorderOptions;
 }
 
 export interface UseWebWorkerParams<T> {

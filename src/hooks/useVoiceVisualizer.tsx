@@ -20,6 +20,7 @@ function useVoiceVisualizer({
   onResumedAudioPlayback,
   onErrorPlayingAudio,
   shouldHandleBeforeUnload = true,
+  mediaRecorderOptions,
 }: useVoiceVisualizerParams = {}): Controls {
   const [isRecordingInProgress, setIsRecordingInProgress] = useState(false);
   const [isPausedRecording, setIsPausedRecording] = useState(false);
@@ -167,7 +168,12 @@ function useVoiceVisualizer({
         sourceRef.current =
           audioContextRef.current.createMediaStreamSource(stream);
         sourceRef.current.connect(analyserRef.current);
-        mediaRecorderRef.current = new MediaRecorder(stream);
+        
+        if (mediaRecorderOptions?.mimeType && !MediaRecorder.isTypeSupported(mediaRecorderOptions.mimeType)) {
+          throw new Error(`The specified mime type "${mediaRecorderOptions.mimeType}" is not supported by this browser.`);
+        }
+        
+        mediaRecorderRef.current = new MediaRecorder(stream, mediaRecorderOptions);
         mediaRecorderRef.current.addEventListener(
           "dataavailable",
           handleDataAvailable,

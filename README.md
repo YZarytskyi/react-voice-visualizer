@@ -126,6 +126,7 @@ const recorderControls = useVoiceVisualizer();
 | `onResumedAudioPlayback`   | `() => void`             | Callback function triggered when audio playback is resumed.                                                                                               |
 | `onErrorPlayingAudio`      | `(error: Error) => void` | Callback function is invoked when an error occurs during the execution of `audio.play()`. It provides an opportunity to handle and respond to such error. |
 | `shouldHandleBeforeUnload` | `boolean`                | Determines whether the `beforeunload` event handler should be added to the window, preventing page unload if necessary (`true` by default).               |
+| `mediaRecorderOptions`     | `MediaRecorderOptions`   | Configuration options for the MediaRecorder instance.    |
 
 ##### Returns
 
