@@ -120,6 +120,8 @@ export interface useVoiceVisualizerParams {
   onResumedAudioPlayback?: () => void;
   onErrorPlayingAudio?: (error: Error) => void;
   shouldHandleBeforeUnload?: boolean;
+  timeslice?: number;
+  onChunkAvailable?: (chunk: Blob) => void;
 }
 
 export interface UseWebWorkerParams<T> {

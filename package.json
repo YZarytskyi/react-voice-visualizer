@@ -51,7 +51,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "npm run build"    
   },
   "peerDependencies": {
     "react": "^18.2.0 || ^19.0.0",
