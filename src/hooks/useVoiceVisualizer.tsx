@@ -21,6 +21,8 @@ function useVoiceVisualizer({
   onErrorPlayingAudio,
   shouldHandleBeforeUnload = true,
   mediaRecorderOptions,
+  timeslice,
+  onChunkAvailable,
 }: useVoiceVisualizerParams = {}): Controls {
   const [isRecordingInProgress, setIsRecordingInProgress] = useState(false);
   const [isPausedRecording, setIsPausedRecording] = useState(false);
@@ -178,7 +180,12 @@ function useVoiceVisualizer({
           "dataavailable",
           handleDataAvailable,
         );
-        mediaRecorderRef.current.start();
+        // Start recording with timeslice if provided, otherwise normal recording
+        if (timeslice) {
+          mediaRecorderRef.current.start(timeslice);
+        } else {
+          mediaRecorderRef.current.start();
+        }
         if (onStartRecording) onStartRecording();
 
         recordingFrame();
@@ -200,6 +207,13 @@ function useVoiceVisualizer({
   };
 
   const handleDataAvailable = (event: BlobEvent) => {
+    // If timeslice is set, only emit chunks - don't store locally
+    if (timeslice && onChunkAvailable) {
+      onChunkAvailable(event.data);
+      return;
+    }
+
+    // Standard behavior (no timeslice): store blob and process for playback
     if (!mediaRecorderRef.current) return;
 
     mediaRecorderRef.current = null;
@@ -240,7 +254,11 @@ function useVoiceVisualizer({
     if (audioContextRef.current && audioContextRef.current.state !== "closed") {
       void audioContextRef.current.close();
     }
-    _setIsProcessingAudioOnComplete(true);
+
+    // Only process blob for playback if not in timeslice mode
+    if (!timeslice) {
+      _setIsProcessingAudioOnComplete(true);
+    }
     setRecordingTime(0);
     setIsPausedRecording(false);
     if (onStopRecording) onStopRecording();

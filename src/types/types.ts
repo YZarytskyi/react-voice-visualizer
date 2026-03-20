@@ -121,6 +121,8 @@ export interface useVoiceVisualizerParams {
   onErrorPlayingAudio?: (error: Error) => void;
   shouldHandleBeforeUnload?: boolean;
   mediaRecorderOptions?: MediaRecorderOptions;
+  timeslice?: number;
+  onChunkAvailable?: (chunk: Blob) => void;
 }
 
 export interface UseWebWorkerParams<T> {
