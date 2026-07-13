@@ -54,6 +54,9 @@ function useVoiceVisualizer({
   const rafRecordingRef = useRef<number | null>(null);
   const rafCurrentTimeUpdateRef = useRef<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const recordedChunksRef = useRef<Blob[]>([]);
+  const chunkIndexRef = useRef(0);
+  const isStoppingRef = useRef(false);
 
   const isAvailableRecordedAudio = Boolean(
     bufferFromRecordedBlob && !isProcessingAudioOnComplete,
@@ -153,6 +156,9 @@ function useVoiceVisualizer({
 
   const getUserMedia = () => {
     setIsProcessingStartRecording(true);
+    recordedChunksRef.current = [];
+    chunkIndexRef.current = 0;
+    isStoppingRef.current = false;
 
     navigator.mediaDevices
       .getUserMedia({ audio: true })
@@ -180,6 +186,9 @@ function useVoiceVisualizer({
           "dataavailable",
           handleDataAvailable,
         );
+        if (timeslice && onChunkAvailable) {
+          mediaRecorderRef.current.addEventListener("stop", handleRecordingStop);
+        }
         // Start recording with timeslice if provided, otherwise normal recording
         if (timeslice) {
           mediaRecorderRef.current.start(timeslice);
@@ -207,9 +216,16 @@ function useVoiceVisualizer({
   };
 
   const handleDataAvailable = (event: BlobEvent) => {
-    // If timeslice is set, only emit chunks - don't store locally
+    if (!event.data || event.data.size === 0) return;
+
+    // If timeslice is set, emit each chunk for upload and also keep it
+    // so the full recording can still be assembled once stopped.
     if (timeslice && onChunkAvailable) {
-      onChunkAvailable(event.data);
+      recordedChunksRef.current.push(event.data);
+      onChunkAvailable(event.data, {
+        index: chunkIndexRef.current++,
+        isLast: isStoppingRef.current,
+      });
       return;
     }
 
@@ -220,6 +236,23 @@ function useVoiceVisualizer({
     audioRef.current = new Audio();
     setRecordedBlob(event.data);
     void processBlob(event.data);
+  };
+
+  // Fires after all "dataavailable" chunks have been emitted, so the
+  // buffered chunks can be combined into the final playable recording.
+  const handleRecordingStop = () => {
+    const chunks = recordedChunksRef.current;
+    recordedChunksRef.current = [];
+
+    if (!mediaRecorderRef.current || chunks.length === 0) return;
+
+    const finalBlob = new Blob(chunks, {
+      type: mediaRecorderRef.current.mimeType,
+    });
+    mediaRecorderRef.current = null;
+    audioRef.current = new Audio();
+    setRecordedBlob(finalBlob);
+    void processBlob(finalBlob);
   };
 
   const handleTimeUpdate = () => {
@@ -242,11 +275,18 @@ function useVoiceVisualizer({
 
     setIsRecordingInProgress(false);
     if (mediaRecorderRef.current) {
+      isStoppingRef.current = true;
       mediaRecorderRef.current.stop();
       mediaRecorderRef.current.removeEventListener(
         "dataavailable",
         handleDataAvailable,
       );
+      if (timeslice && onChunkAvailable) {
+        mediaRecorderRef.current.removeEventListener(
+          "stop",
+          handleRecordingStop,
+        );
+      }
     }
     audioStream?.getTracks().forEach((track) => track.stop());
     if (rafRecordingRef.current) cancelAnimationFrame(rafRecordingRef.current);
@@ -255,10 +295,7 @@ function useVoiceVisualizer({
       void audioContextRef.current.close();
     }
 
-    // Only process blob for playback if not in timeslice mode
-    if (!timeslice) {
-      _setIsProcessingAudioOnComplete(true);
-    }
+    _setIsProcessingAudioOnComplete(true);
     setRecordingTime(0);
     setIsPausedRecording(false);
     if (onStopRecording) onStopRecording();
@@ -278,9 +315,16 @@ function useVoiceVisualizer({
         "dataavailable",
         handleDataAvailable,
       );
+      if (timeslice && onChunkAvailable) {
+        mediaRecorderRef.current.removeEventListener(
+          "stop",
+          handleRecordingStop,
+        );
+      }
       mediaRecorderRef.current.stop();
       mediaRecorderRef.current = null;
     }
+    recordedChunksRef.current = [];
 
     audioStream?.getTracks().forEach((track) => track.stop());
     if (audioRef?.current) {

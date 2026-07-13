@@ -122,7 +122,12 @@ export interface useVoiceVisualizerParams {
   shouldHandleBeforeUnload?: boolean;
   mediaRecorderOptions?: MediaRecorderOptions;
   timeslice?: number;
-  onChunkAvailable?: (chunk: Blob) => void;
+  onChunkAvailable?: (chunk: Blob, meta: ChunkMeta) => void;
+}
+
+export interface ChunkMeta {
+  index: number;
+  isLast: boolean;
 }
 
 export interface UseWebWorkerParams<T> {
