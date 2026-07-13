@@ -89,6 +89,25 @@ const App = () => {
 export default App;
 ```
 
+### Uploading audio while recording (chunked streaming)
+
+If you need to upload audio as it's being recorded (e.g. for live transcription) rather than waiting for the full recording to finish, pass `timeslice` together with `onChunkAvailable`. The full recording is still assembled as normal once `stopRecording` is called, so `recordedBlob`, playback, etc. keep working exactly as before.
+
+```typescript jsx
+const recorderControls = useVoiceVisualizer({
+    timeslice: 1000, // emit a chunk every 1000ms
+    onChunkAvailable: (chunk, meta) => {
+        // e.g. upload this chunk to your server
+        uploadChunk(chunk, meta.index);
+
+        if (meta.isLast) {
+            // this was the final chunk of the recording
+            finalizeUpload();
+        }
+    },
+});
+```
+
 ## Getting started
 
 1. Import the required components and hooks from the library.
@@ -127,6 +146,8 @@ const recorderControls = useVoiceVisualizer();
 | `onErrorPlayingAudio`      | `(error: Error) => void` | Callback function is invoked when an error occurs during the execution of `audio.play()`. It provides an opportunity to handle and respond to such error. |
 | `shouldHandleBeforeUnload` | `boolean`                | Determines whether the `beforeunload` event handler should be added to the window, preventing page unload if necessary (`true` by default).               |
 | `mediaRecorderOptions`     | `MediaRecorderOptions`   | Configuration options for the MediaRecorder instance.    |
+| `timeslice`                | `number`                 | Interval in milliseconds at which recorded audio chunks are emitted via `onChunkAvailable` (e.g. for uploading audio while it's still being recorded). Must be used together with `onChunkAvailable`; the full recording (`recordedBlob`, playback, etc.) is still produced as normal once `stopRecording` is called. |
+| `onChunkAvailable`         | `(chunk: Blob, meta: ChunkMeta) => void` | Callback invoked with each audio chunk as soon as it's available, when `timeslice` is set. `meta.index` is the zero-based order of the chunk and `meta.isLast` is `true` for the final chunk of the recording, useful for reassembling/finalizing an upload. |
 
 ##### Returns
 
